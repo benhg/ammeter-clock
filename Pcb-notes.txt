@@ -1,0 +1,54 @@
+Component Connections
+Power Supply (VCC and GND)
+
+Connect the VCC net to:
+VDD pins of both DACs (MCP4725).
+VCC pins of both op-amps (LM358).
+Connect the GND net to:
+VSS pins of both DACs.
+GND pins of both op-amps.
+Second pin of both shunt resistors.
+DACs (MCP4725)
+
+Connect the I2C SDA and SCL pins of the DACs to Arduino's I2C pins (A4 for SDA, A5 for SCL).
+For the hour hand DAC:
+Connect OUT to the non-inverting input (IN+) of the hour op-amp.
+For the minute hand DAC:
+Connect OUT to the non-inverting input (IN+) of the minute op-amp.
+Op-Amps (LM358)
+
+For the hour op-amp:
+Connect OUT to the gate of the MOSFET (hour).
+Connect the inverting input (IN-) to the first terminal of the hour shunt resistor.
+For the minute op-amp:
+Connect OUT to the gate of the MOSFET (minute).
+Connect the inverting input (IN-) to the first terminal of the minute shunt resistor.
+MOSFETs
+
+For the hour MOSFET:
+Drain (D) connects to the hour gauge’s terminal.
+Source (S) connects to the first terminal of the hour shunt resistor.
+For the minute MOSFET:
+Drain (D) connects to the minute gauge’s terminal.
+Source (S) connects to the first terminal of the minute shunt resistor.
+Shunt Resistors
+
+Use 
+82
+ 
+Ω
+82Ω resistors for both hour and minute hands.
+Connect:
+One side of each shunt resistor to the source of the corresponding MOSFET.
+The other side of each shunt resistor to GND.
+Gauges
+
+Connect the first terminal of each gauge to the drain of its corresponding MOSFET.
+Connect the second terminal of each gauge to the VCC power supply.
+Buttons
+
+Each button has two terminals:
+Connect one terminal of the hour button to Arduino pin 2.
+Connect the other terminal of the hour button to GND.
+Connect one terminal of the minute button to Arduino pin 3.
+Connect the other terminal of the minute button to GND.
