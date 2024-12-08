@@ -1,0 +1,23 @@
+Netlist: 
+1. VCC -> DAC_Hour.VDD, DAC_Minute.VDD, OpAmp_Hour.VCC, OpAmp_Minute.VCC
+2. GND -> DAC_Hour.VSS, DAC_Minute.VSS, OpAmp_Hour.GND, OpAmp_Minute.GND, Shunt_Hour.2, Shunt_Minute.2
+
+DAC_Hour.OUT -> OpAmp_Hour.IN+  
+OpAmp_Hour.OUT -> MOSFET_Hour.G  
+OpAmp_Hour.IN- -> Shunt_Hour.1
+
+DAC_Minute.OUT -> OpAmp_Minute.IN+  
+OpAmp_Minute.OUT -> MOSFET_Minute.G  
+OpAmp_Minute.IN- -> Shunt_Minute.1
+
+Gauge_Hour.Terminal1 -> MOSFET_Hour.D  
+MOSFET_Hour.S -> Shunt_Hour.1  
+
+Gauge_Minute.Terminal1 -> MOSFET_Minute.D  
+MOSFET_Minute.S -> Shunt_Minute.1  
+
+Button_Hour.Terminal1 -> Arduino.Pin2  
+Button_Hour.Terminal2 -> GND  
+
+Button_Minute.Terminal1 -> Arduino.Pin3  
+Button_Minute.Terminal2 -> GND
