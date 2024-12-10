@@ -1,6 +1,22 @@
 #include <Wire.h>
 #include <Adafruit_MCP4725.h>
 
+#define DAC_HOUR_ADDRESS  0x60
+#define DAC_MINUTE_ADDRESS 0x61
+
+void setDAC(byte address, int value) {
+    Wire.beginTransmission(address);
+    Wire.write((value >> 8) & 0xFF); // High byte
+    Wire.write(value & 0xFF);       // Low byte
+    Wire.endTransmission();
+}
+
+// Set Hour DAC
+setDAC(DAC_HOUR_ADDRESS, 2048);
+
+// Set Minute DAC
+setDAC(DAC_MINUTE_ADDRESS, 4096);
+
 // DAC setup
 Adafruit_MCP4725 dacHour;  // For hours hand
 Adafruit_MCP4725 dacMinute; // For minutes hand
