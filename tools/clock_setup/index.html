@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>KN6UBF · Clock setup</title><link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script></head>
+<body><main>
+<header><span class="eyebrow">KN6UBF / ANALOG CLOCK</span><h1>A little time to set things up.</h1><p>Flash your Uno, set the time, and give your clock a network to call home.</p></header>
+<div id="notice" role="status">Connect your clock with a USB data cable.</div>
+<section class="connection"><div class="section-title"><span>01</span><h2>Connect &amp; update</h2></div>
+<div class="row"><label>USB device<select id="port"><option value="">Select a device</option></select></label><button id="refresh" class="quiet">Refresh</button></div>
+<label>Arduino model<select id="board"><option value="uno-r4-wifi">Uno R4 WiFi</option><option value="uno-r3">Uno R3</option></select></label>
+<div class="row actions"><button id="connect">Connect</button><button id="disconnect" class="quiet">Disconnect</button><button id="flash" class="quiet">Flash firmware</button></div>
+<p class="hint">Flashing replaces the sketch. Saved clock settings are retained when compatible. Reconnect afterward. Outputs start disabled on a new installation.</p>
+<details><summary>Firmware upload log</summary><pre id="log">No upload yet.</pre></details></section>
+<section><div class="section-title"><span>02</span><h2>Time &amp; timezone</h2></div>
+<div class="clock"><strong id="clock">— : — : —</strong><span id="source">Not connected</span></div>
+<label>Timezone<select id="zone"><option value="-480,1" data-zone="America/Los_Angeles">Pacific · US daylight saving</option><option value="-420,1" data-zone="America/Denver">Mountain · US daylight saving</option><option value="-360,1" data-zone="America/Chicago">Central · US daylight saving</option><option value="-300,1" data-zone="America/New_York">Eastern · US daylight saving</option><option value="-420,0" data-zone="America/Phoenix">Arizona · no daylight saving</option><option value="-600,0" data-zone="Pacific/Honolulu">Hawaii · no daylight saving</option><option value="0,0" data-zone="Etc/UTC">UTC</option><option value="0,2" data-zone="Europe/London">UK · EU daylight saving</option><option value="60,2" data-zone="Europe/Berlin">Central Europe · EU daylight saving</option><option value="custom">Custom UTC offset</option></select></label>
+<div id="custom-zone" hidden class="row"><label>Standard UTC offset (minutes)<input id="offset" type="number" min="-720" max="840" value="0"></label><label>Daylight saving<select id="dst"><option value="0">None</option><option value="1">US</option><option value="2">EU</option></select></label></div>
+<div class="row actions"><button id="set-time" data-connected>Use computer time</button><button id="save-zone" class="quiet" data-connected>Save timezone</button><button id="sync" class="quiet" data-wifi>Resume NTP</button></div>
+<p class="hint">Both boards: press HOUR or MINUTE once to advance; hold to repeat. Buttons reset seconds. On R4 WiFi, manual setting pauses NTP until restart or Resume NTP. Without NTP or an RTC, set time again after power loss or reset.</p></section>
+<section><div class="section-title"><span>03</span><h2>Wi-Fi <small>R4 WiFi</small></h2></div>
+<p id="wifi-state" class="hint">Wi-Fi settings are available after connecting an R4 WiFi.</p>
+<form id="wifi-form"><label>Network name (SSID)<input id="ssid" maxlength="32" autocomplete="off" data-wifi></label><label>Password<input id="password" type="password" maxlength="64" autocomplete="new-password" data-wifi></label><label class="check"><input id="open-network" type="checkbox" data-wifi> This network has no password</label><div class="row actions"><button type="submit" data-wifi>Save Wi-Fi</button><button type="button" id="clear-wifi" class="quiet" data-wifi>Forget network</button></div></form>
+<p class="hint">Use a 2.4 GHz network. Credentials are sent over USB and stored on the Arduino; they are never saved by this tool. NTP syncs at startup and hourly while connected.</p></section>
+<section><div class="section-title"><span>04</span><h2>Meter calibration</h2></div>
+<p class="hint">Hours use a 0–15 V voltmeter. Minutes require a 0–100 µA movement and a calibrated 0–60 dial. The present board supplies about 73 µA maximum. Enable only after wiring and calibration have been checked.</p>
+<div class="row"><label>Hour code at 12<input id="hour-scale" type="number" min="1" max="4095" value="3750" data-connected></label><label>Minute code at 60<input id="minute-scale" type="number" min="1" max="4095" value="4095" data-connected></label></div>
+<button id="save-scale" class="quiet" data-connected>Save calibration</button>
+<label class="check"><input id="calibrated" type="checkbox" data-connected> I have checked meter polarity, ratings, and calibration.</label>
+<div class="row actions"><button id="enable" data-connected>Enable meters</button><button id="disable" class="quiet" data-connected>Disable meters</button></div><p id="output-state" class="hint">Output state unknown.</p></section>
+<footer>Local USB setup · firmware 0.2.0 · no account required</footer>
+</main></body></html>
