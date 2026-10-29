@@ -8,6 +8,7 @@ from pathlib import Path
 import secrets
 import shutil
 import subprocess
+import sys
 import tempfile
 import threading
 import time
@@ -16,18 +17,35 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parents[2]
-STATIC = Path(__file__).resolve().parent
+BUNDLE = Path(getattr(sys, "_MEIPASS", ROOT))
+STATIC = BUNDLE / "tools/clock_setup" if getattr(sys, "frozen", False) else Path(__file__).resolve().parent
+if getattr(sys, "frozen", False):
+    ROOT = BUNDLE
 BOARDS = {"uno-r3": ("arduino:avr:uno", "arduino:avr"),
           "uno-r4-wifi": ("arduino:renesas_uno:unor4wifi", "arduino:renesas_uno")}
 
 
 def find_cli():
-    candidates = [os.environ.get("ARDUINO_CLI"), shutil.which("arduino-cli"),
+    executable = "arduino-cli.exe" if sys.platform == "win32" else "arduino-cli"
+    candidates = [os.environ.get("ARDUINO_CLI"), str(BUNDLE / "bin" / executable), shutil.which("arduino-cli"),
                   str(ROOT / ".tools/arduino-cli"), "/tmp/ammeter-arduino-tools/arduino-cli"]
     for candidate in candidates:
         if candidate and Path(candidate).is_file():
             return candidate
     raise RuntimeError("Arduino CLI not found. Install it or set ARDUINO_CLI to its path.")
+
+
+def run_cli(command, **kwargs):
+    # Frozen apps must not pass bundled shared-library paths into vendor tools.
+    env = os.environ.copy()
+    for key in ("LD_LIBRARY_PATH", "DYLD_LIBRARY_PATH"):
+        original = env.pop(key + "_ORIG", None)
+        env.pop(key, None)
+        if original:
+            env[key] = original
+    return subprocess.run(command, env=env,
+                          creationflags=subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0,
+                          **kwargs)
 
 
 def credential_hex(value, maximum, *, empty=True):
@@ -86,20 +104,18 @@ class Device:
         self.job_lock = threading.Lock()
 
     def boards(self):
-        result = subprocess.run([find_cli(), "board", "list", "--json"], capture_output=True, text=True, timeout=30)
-        if result.returncode:
-            raise RuntimeError("Unable to list boards: " + result.stderr[-1000:])
-        data = json.loads(result.stdout)
+        # Enumeration works before Arduino board support is installed.
+        from serial.tools import list_ports
         rows = []
-        for item in data.get("detected_ports", []):
-            port = item["port"]
-            if port.get("protocol") != "serial":
-                continue
-            matches = item.get("matching_boards", [])
-            supported = next((key for key, (fqbn, _) in BOARDS.items()
-                              if any(m.get("fqbn") == fqbn for m in matches)), None)
-            rows.append({"port": port["address"], "name": matches[0]["name"] if matches else port.get("label", port["address"]),
-                         "board": supported, "recognized": bool(matches)})
+        for port in list_ports.comports():
+            board = None
+            if port.vid in (0x2341, 0x2a03):
+                if port.pid in (0x1002, 0x0069):
+                    board = "uno-r4-wifi"
+                elif port.pid in (0x0043, 0x0001):
+                    board = "uno-r3"
+            rows.append({"port":port.device,"name":port.description or port.device,
+                         "board":board,"recognized":board is not None})
         return rows
 
     def close(self):
@@ -189,16 +205,23 @@ class Device:
         try:
             cli = find_cli()
             fqbn, core = BOARDS[board]
-            cores = subprocess.run([cli,"core","list","--json"],capture_output=True,text=True,timeout=30,check=True)
-            installed = json.loads(cores.stdout).get("platforms", [])
+            cores = run_cli([cli,"core","list","--json"],capture_output=True,text=True,timeout=60)
+            installed = json.loads(cores.stdout).get("platforms", []) if cores.returncode == 0 else []
             if not any(p.get("id") == core and p.get("installed_version") for p in installed):
-                raise RuntimeError(f"Install board support first: arduino-cli core update-index, then arduino-cli core install {core}")
+                log += "First run: downloading Arduino board support. This may take several minutes.\n"
+                self.set_job(log=log)
+                for setup in ([cli,"core","update-index"], [cli,"core","install",core]):
+                    result = run_cli(setup,capture_output=True,text=True,timeout=900)
+                    log += result.stdout + result.stderr
+                    self.set_job(log=log)
+                    if result.returncode:
+                        raise RuntimeError("Board support download failed; check the Internet connection and retry")
             with tempfile.TemporaryDirectory(prefix="ammeter-build-") as build:
                 commands = [([cli,"compile","--fqbn",fqbn,"--build-path",build,str(ROOT/"firmware/AmmeterClock")],"Compiling"),
                             ([cli,"upload","--fqbn",fqbn,"--port",port,"--input-dir",build,str(ROOT/"firmware/AmmeterClock")],"Uploading")]
                 for command, label in commands:
                     log += label + "…\n"; self.set_job(log=log)
-                    result = subprocess.run(command,capture_output=True,text=True,timeout=240)
+                    result = run_cli(command,capture_output=True,text=True,timeout=240)
                     log += result.stdout + result.stderr
                     self.set_job(log=log)
                     if result.returncode:
@@ -260,7 +283,8 @@ class Handler(BaseHTTPRequestHandler):
             return
         files = {"/":("index.html","text/html; charset=utf-8"),
                  "/app.js":("app.js","text/javascript; charset=utf-8"),
-                 "/style.css":("style.css","text/css; charset=utf-8")}
+                 "/style.css":("style.css","text/css; charset=utf-8"),
+                 "/web_serial.js":("web_serial.js","text/javascript; charset=utf-8")}
         if path not in files:
             self.send(404,{"error":"Not found"}); return
         name, content_type = files[path]
@@ -283,6 +307,12 @@ class Handler(BaseHTTPRequestHandler):
                 result = device.command(data)
             elif self.path == "/api/flash":
                 result = device.flash(data.get("port"),data.get("board"))
+            elif self.path == "/api/quit":
+                if device.busy:
+                    raise RuntimeError("Wait for the firmware upload to finish before quitting")
+                self.send(200,{})
+                threading.Thread(target=self.server.shutdown,daemon=True).start()
+                return
             elif self.path == "/api/disconnect":
                 with device.lock:
                     device.close()
@@ -298,7 +328,15 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port",type=int,default=0,help="Local web port (default: choose a free port)")
     parser.add_argument("--no-browser",action="store_true")
+    parser.add_argument("--self-test",metavar="RESULT_JSON",help=argparse.SUPPRESS)
     args = parser.parse_args()
+    if args.self_test:
+        for name in ("index.html","app.js","web_serial.js","style.css"):
+            assert (STATIC/name).is_file(), name
+        assert (ROOT/"firmware/AmmeterClock/AmmeterClock.ino").is_file()
+        result = run_cli([find_cli(),"version"],capture_output=True,text=True,timeout=30,check=True)
+        Path(args.self_test).write_text(json.dumps({"frozen":bool(getattr(sys,"frozen",False)),"cli":result.stdout.strip()}))
+        return
     server = Server(("127.0.0.1",args.port))
     url = f"http://127.0.0.1:{server.server_port}/#{server.token}"
     print("Clock setup: " + url,flush=True)

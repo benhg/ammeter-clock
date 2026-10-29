@@ -2,10 +2,13 @@
 const $ = id => document.getElementById(id);
 const token = location.hash.slice(1) || sessionStorage.getItem('clock-token') || '';
 if(token) sessionStorage.setItem('clock-token',token);
-history.replaceState(null, '', '/');
+history.replaceState(null, '', location.pathname);
+const webMode=document.documentElement.dataset.mode==='web'||(!['127.0.0.1','localhost'].includes(location.hostname));
+const usb=webMode?new ClockUSB(navigator.serial):null;
 let connected = false, status = null, busy = false, pollBusy = false, flashing = false;
 const notice = (text, error=false) => { $('notice').textContent=text; $('notice').classList.toggle('error',error); };
 async function api(path, body) {
+  if(webMode)return usb.api(path,body);
   const options = {headers:{'X-Clock-Token':token}};
   if(body!==undefined){ options.method='POST'; options.headers['Content-Type']='application/json'; options.body=JSON.stringify(body); }
   const response=await fetch('/api/'+path,options);
@@ -18,6 +21,7 @@ function controls(){
   document.querySelectorAll('[data-wifi]').forEach(e=>e.disabled=!connected||!status?.wifi_supported||busy||flashing);
   for(const id of ['connect','flash','refresh','board','port']) $(id).disabled=busy||flashing;
   $('disconnect').disabled=!connected||busy||flashing;
+  if(webMode){$('flash').hidden=true;$('quit').hidden=true;}
   $('password').disabled=!connected||!status?.wifi_supported||busy||flashing||$('open-network').checked;
 }
 function render(s, loadFields=false){
@@ -70,5 +74,13 @@ $('flash').onclick=()=>run(async()=>{
 });
 setInterval(async()=>{if(!connected||busy||flashing||pollBusy)return;pollBusy=true;try{render(await api('command',{action:'status'}));}catch(e){connected=false;controls();notice(e.message,true);}finally{pollBusy=false;}},2500);
 controls();
-if(!token)notice('Open the complete URL printed by the setup launcher, including its # token.',true);
+if(webMode){
+  $('desktop-downloads').hidden=false;
+  $('flash-hint').textContent='Already flashed? Connect here to set time, Wi-Fi, and calibration directly over USB. To install firmware, download the desktop app below.';
+  if(!navigator.serial)notice('This browser does not support USB serial. Open this page in desktop Chrome or Edge, or download the app below.',true);
+  else notice('Connect your clock with a USB data cable, then click Connect and choose its USB device.');
+  run(refresh);
+}else if(!token)notice('Open the complete URL printed by the setup launcher, including its # token.',true);
 else run(refresh);
+
+$('quit').onclick=()=>run(async()=>{await api('quit',{});connected=false;$('quit').disabled=true;},'Setup app closed. You can close this browser tab.');

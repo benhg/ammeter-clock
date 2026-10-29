@@ -1,13 +1,17 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>KN6UBF · Clock setup</title><link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script></head>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>KN6UBF · Clock setup</title><link rel="stylesheet" href="./style.css"><script src="./web_serial.js" defer></script><script src="./app.js" defer></script></head>
 <body><main>
 <header><span class="eyebrow">KN6UBF / ANALOG CLOCK</span><h1>A little time to set things up.</h1><p>Flash your Uno, set the time, and give your clock a network to call home.</p></header>
 <div id="notice" role="status">Connect your clock with a USB data cable.</div>
+<section id="desktop-downloads" hidden><div class="section-title"><span>↓</span><h2>Get the desktop app</h2></div>
+<p>Download, extract, and open <strong>KN6UBF Clock Setup</strong>. It opens this setup interface in your browser and handles firmware flashing locally. Python and Arduino CLI are included; board support downloads on the first flash.</p>
+<div class="downloads"><a class="download" href="https://github.com/benhg/ammeter-clock/releases/latest/download/clock-setup-Windows-x64.zip">Windows · 64-bit</a><a class="download" href="https://github.com/benhg/ammeter-clock/releases/latest/download/clock-setup-macOS-arm64.zip">Mac · Apple silicon</a><a class="download" href="https://github.com/benhg/ammeter-clock/releases/latest/download/clock-setup-macOS-x64.zip">Mac · Intel</a><a class="download" href="https://github.com/benhg/ammeter-clock/releases/latest/download/clock-setup-Linux-x64.tar.gz">Linux · 64-bit</a></div>
+<p class="hint">The first builds are unsigned; macOS apps are not notarized. Linux needs a desktop browser and USB serial permissions. <a href="https://github.com/benhg/ammeter-clock/releases/latest">Release notes and checksums</a></p></section>
 <section class="connection"><div class="section-title"><span>01</span><h2>Connect &amp; update</h2></div>
 <div class="row"><label>USB device<select id="port"><option value="">Select a device</option></select></label><button id="refresh" class="quiet">Refresh</button></div>
 <label>Arduino model<select id="board"><option value="uno-r4-wifi">Uno R4 WiFi</option><option value="uno-r3">Uno R3</option></select></label>
 <div class="row actions"><button id="connect">Connect</button><button id="disconnect" class="quiet">Disconnect</button><button id="flash" class="quiet">Flash firmware</button></div>
-<p class="hint">Flashing replaces the sketch. Saved clock settings are retained when compatible. Reconnect afterward. Outputs start disabled on a new installation.</p>
+<p id="flash-hint" class="hint">Flashing replaces the sketch. Saved clock settings are retained when compatible. Reconnect afterward. Outputs start disabled on a new installation.</p>
 <details><summary>Firmware upload log</summary><pre id="log">No upload yet.</pre></details></section>
 <section><div class="section-title"><span>02</span><h2>Time &amp; timezone</h2></div>
 <div class="clock"><strong id="clock">— : — : —</strong><span id="source">Not connected</span></div>
@@ -25,5 +29,5 @@
 <button id="save-scale" class="quiet" data-connected>Save calibration</button>
 <label class="check"><input id="calibrated" type="checkbox" data-connected> I have checked meter polarity, ratings, and calibration.</label>
 <div class="row actions"><button id="enable" data-connected>Enable meters</button><button id="disable" class="quiet" data-connected>Disable meters</button></div><p id="output-state" class="hint">Output state unknown.</p></section>
-<footer>Local USB setup · firmware 0.2.0 · no account required</footer>
+<footer>USB clock setup · firmware 0.2.0 · no account required <button id="quit" class="quiet">Quit setup app</button></footer>
 </main></body></html>

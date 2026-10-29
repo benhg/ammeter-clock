@@ -1,0 +1,61 @@
+name: Desktop apps
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            label: Windows-x64
+          - os: macos-15
+            label: macOS-arm64
+          - os: macos-15-intel
+            label: macOS-x64
+          - os: ubuntu-22.04
+            label: Linux-x64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r tools/clock_setup/requirements.txt pyinstaller==6.22.0
+      - run: python -m unittest discover -s tests -p test_clock_setup.py
+      - run: node tests/web_serial_test.js
+      - run: python tools/clock_setup/build_app.py
+      - run: python tools/clock_setup/smoke_app.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: clock-setup-${{ matrix.label }}
+          path: |
+            dist-clock/*.zip
+            dist-clock/*.tar.gz
+          if-no-files-found: error
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: clock-setup-*
+          path: downloads
+          merge-multiple: true
+      - name: Publish downloads
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          cd downloads
+          sha256sum * > SHA256SUMS.txt
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --title "Clock Setup $TAG" --notes "Standalone USB clock setup apps. Extract the archive, then open KN6UBF Clock Setup. Python and Arduino CLI are included; board support downloads automatically on first flash. macOS apps are unsigned and not notarized. Linux requires a desktop browser and serial-port access. Meter outputs remain governed by the saved board settings."
+          gh release upload "$TAG" ./* --clobber

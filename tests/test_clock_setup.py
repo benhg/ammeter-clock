@@ -2,6 +2,7 @@ import importlib.util
 import json
 from pathlib import Path
 import threading
+import subprocess
 import unittest
 from unittest.mock import patch
 from urllib.request import Request, urlopen
@@ -38,6 +39,21 @@ class SetupTests(unittest.TestCase):
         device=app.Device(); device.serial=FakeSerial()
         self.assertEqual(device.request('STATUS'),{'protocol':1})
         self.assertEqual(device.serial.sent,[b'STATUS\n'])
+    def test_first_flash_installs_board_support(self):
+        device=app.Device(); device.busy=True; calls=[]
+        def run(command, **_):
+            calls.append(command)
+            if command[1:3]==['core','list']:
+                return subprocess.CompletedProcess(command,1,'','No package index yet')
+            return subprocess.CompletedProcess(command,0,'ok','')
+        with patch.object(app,'find_cli',return_value='cli'), patch.object(app,'run_cli',side_effect=run):
+            device._flash('COM1','uno-r3')
+        self.assertEqual(device.job_state()['state'],'done')
+        self.assertFalse(device.busy)
+        self.assertIn(['cli','core','update-index'],calls)
+        self.assertIn(['cli','core','install','arduino:avr'],calls)
+        self.assertEqual(calls[-1][1],'upload')
+
     def test_http_auth_and_input(self):
         server=app.Server(('127.0.0.1',0))
         thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
