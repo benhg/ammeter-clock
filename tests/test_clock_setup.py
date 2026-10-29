@@ -35,6 +35,11 @@ class SetupTests(unittest.TestCase):
                      dict(action='time',epoch=0)]:
             with self.subTest(data=data), self.assertRaises(ValueError): app.make_command(data)
         self.assertEqual(app.make_command(dict(action='wifi',ssid='test',password='')),'WIFI 74657374 -')
+    def test_pattern_commands(self):
+        self.assertEqual(app.make_command(dict(action='test',operation='start')),'TEST START')
+        self.assertEqual(app.make_command(dict(action='test',operation='stop')),'TEST STOP')
+        with self.assertRaises(ValueError): app.make_command(dict(action='test',operation='restart'))
+
     def test_serial_framing(self):
         device=app.Device(); device.serial=FakeSerial()
         self.assertEqual(device.request('STATUS'),{'protocol':1})

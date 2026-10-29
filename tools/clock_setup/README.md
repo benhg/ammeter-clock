@@ -35,7 +35,7 @@ Windows: use `.venv-clock\Scripts\python.exe` in the last two commands. Close Ar
 ## Use
 
 1. Plug in the Uno with a USB data cable. Remove any temporary J3 bench-test short.
-2. Choose the detected device and correct model. Click **Flash firmware** if it does not already have main firmware 0.2.0. The bundled bench sketches cannot answer setup commands.
+2. Choose the detected device and correct model. Click **Flash firmware** if it does not already have main firmware 0.2.2. The bundled bench sketches cannot answer setup commands.
 3. After flashing, refresh devices and connect. The R3 resets when the USB serial connection opens, so configure time after connecting.
 4. Choose a timezone. **Use computer time** saves it and sets UTC from the computer. Check the computer's own date/time first.
 5. On R4 WiFi, enter SSID/password and save. Saving a network does not override an intentional manual time setting: click **Resume NTP**, or restart, to allow network time. Status distinguishes Wi-Fi connectivity from an actual NTP synchronization. Network association can take a minute.
@@ -60,3 +60,5 @@ Install `pyinstaller==6.22.0` alongside `requirements.txt`, then run `python too
 Tagging `v*` runs `.github/workflows/desktop.yml`: four native build runners, host tests, packaged CLI/assets/server smoke checks, then release downloads and SHA256 checksums. Every build must pass before the release is published. Website changes on main deploy through `.github/workflows/pages.yml`; Pages source must be GitHub Actions.
 
 Web Serial tests: `node tests/web_serial_test.js`. `python tools/clock_setup/build_pages.py` creates `_site-clock/` with only public UI assets. Wi-Fi credentials travel directly to the board, not to GitHub Pages. The website loads no third-party scripts.
+
+**Run test pattern** (firmware 0.2.2+) sweeps enabled meter outputs through hours 0–12 and minutes 0–60 over 61 seconds and then restores live time. Stop test, Disable meters, or either physical button cancels it. It never saves a test time or changes calibration.

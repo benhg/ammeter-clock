@@ -1,4 +1,4 @@
-# Clock firmware 0.2.0
+# Clock firmware 0.2.2
 
 `AmmeterClock/AmmeterClock.ino` supports Uno R3 and Uno R4 WiFi without external libraries. Install the appropriate official Arduino board package. The R4 uses the included WiFiS3 library; R3 builds omit networking. No external RTC is required or currently read by this firmware.
 
@@ -17,6 +17,10 @@
 
 WiFiS3 operations are synchronous: association has a one-second configured timeout; modem/DNS calls may also temporarily delay button sampling. Network retries are bounded in frequency, but guaranteed real-time button handling under a malfunctioning Wi-Fi modem has not been established.
 
+## Test pattern
+
+With meter outputs enabled, **Run test pattern** sweeps both outputs together for 61 seconds. Minutes step 0–60 once per second; hours step 0–12 once every five seconds. Both endpoints are held for one second before returning to the live clock. The pattern uses the saved calibration codes and does not change time, timezone, NTP/manual mode, calibration, or EEPROM. Stop, disable outputs, changing calibration, or either physical setting button cancels it. DAC failure cancels it and latches updates off. The timed pattern continues independently if USB disconnects and then returns to the clock; its full-scale minute endpoint is about 73 µA with this board, not 100 mA.
+
 ## USB protocol
 
 115200 baud, newline-terminated ASCII commands. Replies are `OK {json}` or `ERR reason`. No echo. Unknown/malformed/oversize commands are rejected; an overflowing line is discarded through its newline. Maximum command length is 223 bytes. Fields below are decimal unless specified.
@@ -30,6 +34,7 @@ WiFiS3 operations are synchronous: association has a one-second configured timeo
 | `WIFI_CLEAR` | Erase saved credentials and disconnect |
 | `SYNC` | R4 only: clear manual override and request NTP |
 | `SCALE <hour code at 12> <minute code at 60>` | Save bounded calibration codes |
+| `TEST START` / `TEST STOP` | Start/stop the timed sweep; starting requires enabled outputs and responsive DAC |
 | `OUTPUT 0` / `OUTPUT 1` | Disable/enable; enabling requires a valid time and responsive DAC |
 
 The firmware uses volatile MCP4728 multi-write commands, internal 2.048 V reference, gain 2; it never programs DAC EEPROM.

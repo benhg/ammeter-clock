@@ -84,6 +84,7 @@ class ClockUSB {
       case 'zone':return `ZONE ${number('offset',-720,840)} ${number('dst',0,2)}`;
       case 'scale':return `SCALE ${number('hour',1,4095)} ${number('minute',1,4095)}`;
       case 'output':if(typeof data.enabled!=='boolean')throw new Error('Invalid output setting');return 'OUTPUT '+Number(data.enabled);
+      case 'test':if(!['start','stop'].includes(data.operation))throw new Error('Choose start or stop');return 'TEST '+data.operation.toUpperCase();
       case 'wifi':{
         const password=data.password, length=new TextEncoder().encode(password).length;
         if(length&&length<8)throw new Error('Password must be at least 8 bytes or empty for an open network.');

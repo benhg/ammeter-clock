@@ -15,6 +15,9 @@ constexpr uint8_t DAC_ADDRESS = 0x60;
 Settings settings;
 Button hourButton, minuteButton;
 bool dacReady = false, timeValid = false, manualOverride = false;
+bool testActive = false;
+uint8_t testStep = 0;
+uint32_t testStarted = 0;
 uint32_t utcEpoch = MIN_EPOCH, lastTick = 0;
 const char *timeSource = "unset";
 char inputLine[224];
@@ -55,11 +58,21 @@ void updateGauges() {
   bool drive = settings.enabled && timeValid;
   uint16_t h = drive ? uint32_t(hour)*settings.hourScale/12 : 0;
   uint16_t m = drive ? uint32_t(local/60%60)*settings.minuteScale/60 : 0;
+  if (testActive) {
+    h = uint32_t(testStep/5)*settings.hourScale/12;
+    m = uint32_t(testStep)*settings.minuteScale/60;
+  }
   bool hOK = writeDAC(HOUR_CHANNEL,h);
   bool mOK = writeDAC(MINUTE_CHANNEL,m);
   if (!hOK || !mOK) {
-    zeroOutputs(); dacReady = false; // latch until restart; never imply zero was verified
+    testActive = false; zeroOutputs(); dacReady = false; // latch until restart; never imply zero was verified
   }
+}
+void testTick(uint32_t now) {
+  if (!testActive) return;
+  uint32_t step = uint32_t(now-testStarted)/1000;
+  if (step > 60) { testActive = false; updateGauges(); }
+  else if (step != testStep) { testStep = step; updateGauges(); }
 }
 void saveSettings() {
   settings.checksum = checksum(settings);
@@ -76,7 +89,7 @@ void setClock(uint32_t epoch, const char *source) {
 void ok() { Serial.println(F("OK {}")); }
 void error(const __FlashStringHelper *message) { Serial.print(F("ERR ")); Serial.println(message); }
 void printStatus() {
-  Serial.print(F("OK {\"protocol\":1,\"firmware\":\"0.2.0\",\"board\":\""));
+  Serial.print(F("OK {\"protocol\":1,\"firmware\":\"0.2.2\",\"board\":\""));
 #if CLOCK_WIFI
   Serial.print(F("uno-r4-wifi"));
 #else
@@ -89,6 +102,9 @@ void printStatus() {
   Serial.print(F("\",\"manual_override\":")); Serial.print(manualOverride ? F("true") : F("false"));
   Serial.print(F(",\"dac_ready\":")); Serial.print(dacReady ? F("true") : F("false"));
   Serial.print(F(",\"enabled\":")); Serial.print(settings.enabled ? F("true") : F("false"));
+  Serial.print(F(",\"test_active\":")); Serial.print(testActive ? F("true") : F("false"));
+  Serial.print(F(",\"test_hour\":")); Serial.print(testActive ? testStep/5 : 0);
+  Serial.print(F(",\"test_minute\":")); Serial.print(testActive ? testStep : 0);
   Serial.print(F(",\"hour_scale\":")); Serial.print(settings.hourScale);
   Serial.print(F(",\"minute_scale\":")); Serial.print(settings.minuteScale);
   Serial.print(F(",\"offset\":")); Serial.print(settings.offsetMinutes);
@@ -133,12 +149,24 @@ void command(char *line) {
     settings.offsetMinutes = x; settings.dst = y; saveSettings(); updateGauges(); ok(); return;
   }
   if (!strcmp(cmd,"SCALE") && !extra && number(a,1,4095,x) && number(b,1,4095,y)) {
-    settings.hourScale = x; settings.minuteScale = y; saveSettings(); updateGauges(); ok(); return;
+    testActive = false; settings.hourScale = x; settings.minuteScale = y; saveSettings(); updateGauges(); ok(); return;
   }
   if (!strcmp(cmd,"OUTPUT") && !b && number(a,0,1,x)) {
     if (x && !dacReady) { error(F("dac_unavailable")); return; }
     if (x && !timeValid) { error(F("set_time_first")); return; }
+    if (!x) testActive = false;
     settings.enabled = x; saveSettings(); updateGauges(); ok(); return;
+  }
+  if (!strcmp(cmd,"TEST") && a && !b) {
+    if (!strcmp(a,"STOP")) { testActive = false; updateGauges(); ok(); return; }
+    if (!strcmp(a,"START")) {
+      if (!dacReady) { error(F("dac_unavailable")); return; }
+      if (!settings.enabled) { error(F("enable_meters_first")); return; }
+#if CLOCK_WIFI
+      ntpWaiting = false; ntpDue = true; // do not accept an old reply after the sweep
+#endif
+      testActive = true; testStep = 0; testStarted = millis(); updateGauges(); ok(); return;
+    }
   }
   if (!strcmp(cmd,"WIFI") && a && b && !extra) {
 #if CLOCK_WIFI
@@ -242,6 +270,7 @@ void setup() {
 }
 void loop() {
   uint32_t now = millis();
+  testTick(now);
   uint32_t elapsed = uint32_t(now-lastTick)/1000;
   if (elapsed) { utcEpoch += elapsed; lastTick += elapsed*1000; updateGauges(); }
   readCommands();
@@ -249,6 +278,7 @@ void loop() {
   bool h = hourButton.poll(digitalRead(2) == LOW,now);
   bool m = minuteButton.poll(digitalRead(3) == LOW,now);
   if (h || m) {
+    testActive = false;
     if (!timeValid) { utcEpoch = MIN_EPOCH - int32_t(settings.offsetMinutes)*60; timeValid = true; }
     utcEpoch -= localEpoch(utcEpoch,settings)%60;
     if (h) utcEpoch += 3600;
@@ -260,6 +290,6 @@ void loop() {
     lastTick = now; timeSource = "buttons"; updateGauges();
   }
 #if CLOCK_WIFI
-  networkTick(millis());
+  if (!testActive) networkTick(millis());
 #endif
 }

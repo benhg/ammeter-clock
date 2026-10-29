@@ -28,6 +28,7 @@
 <div class="row"><label>Hour code at 12<input id="hour-scale" type="number" min="1" max="4095" value="3750" data-connected></label><label>Minute code at 60<input id="minute-scale" type="number" min="1" max="4095" value="4095" data-connected></label></div>
 <button id="save-scale" class="quiet" data-connected>Save calibration</button>
 <label class="check"><input id="calibrated" type="checkbox" data-connected> I have checked meter polarity, ratings, and calibration.</label>
-<div class="row actions"><button id="enable" data-connected>Enable meters</button><button id="disable" class="quiet" data-connected>Disable meters</button></div><p id="output-state" class="hint">Output state unknown.</p></section>
-<footer>USB clock setup · firmware 0.2.0 · no account required <button id="quit" class="quiet">Quit setup app</button></footer>
+<div class="row actions"><button id="enable" data-connected>Enable meters</button><button id="disable" class="quiet" data-connected>Disable meters</button></div><p id="output-state" class="hint">Output state unknown.</p>
+<div class="row actions"><button id="test-start" class="quiet" data-connected>Run test pattern</button><button id="test-stop" class="quiet" data-connected>Stop test</button></div><p id="test-hint" class="hint">With meters enabled, sweep hours 0–12 and minutes 0–60 over 61 seconds, then return to the current time. Calibration and saved time are unchanged. Either physical button also stops the test.</p></section>
+<footer>USB clock setup · firmware 0.2.2 · no account required <button id="quit" class="quiet">Quit setup app</button></footer>
 </main></body></html>

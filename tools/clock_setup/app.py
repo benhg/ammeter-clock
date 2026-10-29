@@ -78,6 +78,10 @@ def make_command(data):
         if type(data.get("enabled")) is not bool:
             raise ValueError("enabled must be a boolean")
         return f"OUTPUT {int(data['enabled'])}"
+    if action == "test":
+        if data.get("operation") not in ("start", "stop"):
+            raise ValueError("Choose start or stop")
+        return "TEST " + data["operation"].upper()
     if action == "wifi":
         ssid = credential_hex(data.get("ssid"), 32, empty=False)
         password = data.get("password")

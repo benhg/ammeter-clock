@@ -22,6 +22,8 @@ function controls(){
   for(const id of ['connect','flash','refresh','board','port']) $(id).disabled=busy||flashing;
   $('disconnect').disabled=!connected||busy||flashing;
   if(webMode){$('flash').hidden=true;$('quit').hidden=true;}
+  $('test-start').disabled=!connected||busy||flashing||!status?.enabled||!status?.dac_ready||!('test_active' in (status||{}))||status?.test_active;
+  $('test-stop').disabled=!connected||busy||flashing||!status?.test_active;
   $('password').disabled=!connected||!status?.wifi_supported||busy||flashing||$('open-network').checked;
 }
 function render(s, loadFields=false){
@@ -30,6 +32,8 @@ function render(s, loadFields=false){
   $('source').textContent= s.time_valid ? `${s.board} · ${s.source==='ntp'?'NTP synchronized':s.source==='buttons'?'Set with buttons':'Set from computer'}${s.manual_override?' · NTP paused until restart':''}` : `${s.board} · waiting for time`;
   $('wifi-state').textContent=!s.wifi_supported?'Uno R3 has no onboard Wi-Fi. Use computer time or the buttons.':s.wifi_connected?'Connected to Wi-Fi. '+(s.manual_override?'NTP is paused.':s.source==='ntp'?'NTP has set the clock.':'Waiting for an NTP reply.') : s.wifi_configured?'Network saved; waiting for Wi-Fi connection.':'No network configured.';
   $('output-state').textContent=!s.dac_ready?'DAC is not responding. Outputs cannot be verified; check hardware and restart.':s.enabled?(s.time_valid?'Meters enabled.':'Meters enabled in settings, held at zero until time is set.'):'Meters disabled; zero output requested.';
+  if(s.test_active)$('output-state').textContent=`Test pattern: hours ${s.test_hour}/12 · minutes ${s.test_minute}/60. Returns to the current time automatically.`;
+  $('test-hint').textContent=('test_active' in s)?'With meters enabled, sweep hours 0–12 and minutes 0–60 over 61 seconds, then return to the current time. Calibration and saved time are unchanged. Either physical button also stops the test.':'Flash firmware 0.2.2 or newer to use the test pattern.';
   if(loadFields){
     $('hour-scale').value=s.hour_scale; $('minute-scale').value=s.minute_scale;
     const value=`${s.offset},${s.dst}`;
@@ -84,3 +88,6 @@ if(webMode){
 else run(refresh);
 
 $('quit').onclick=()=>run(async()=>{await api('quit',{});connected=false;$('quit').disabled=true;},'Setup app closed. You can close this browser tab.');
+
+$('test-start').onclick=()=>run(()=>command({action:'test',operation:'start'}),'Test pattern running. It will return to the current time automatically.');
+$('test-stop').onclick=()=>run(()=>command({action:'test',operation:'stop'}),'Test stopped. Current time restored.');

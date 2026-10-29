@@ -26,12 +26,34 @@ int main() {
   auto packet = [](uint8_t c,uint16_t code){return std::vector<uint8_t>{0x60,uint8_t(0x40|(c<<1)),uint8_t(0x90|(code>>8)),uint8_t(code)};};
   assert(Wire.writes[Wire.writes.size()-2] == packet(3,3750));
   assert(Wire.writes.back() == packet(2,2047));
+  // Both dial endpoints, automatic return, no writes, stop/disable cancellation.
+  unsigned patternWrites=EEPROM.writes;
+  uint32_t before=utcEpoch;
+  send("TEST START"); assert(testActive && testStep==0);
+  assert(Wire.writes[Wire.writes.size()-2]==packet(3,0) && Wire.writes.back()==packet(2,0));
+  fakeNow+=30000; loop(); assert(testActive && testStep==30 && utcEpoch==before+30);
+  assert(Wire.writes[Wire.writes.size()-2]==packet(3,1875) && Wire.writes.back()==packet(2,2047));
+  fakeNow+=30000; loop(); assert(testActive && testStep==60);
+  assert(Wire.writes[Wire.writes.size()-2]==packet(3,3750) && Wire.writes.back()==packet(2,4095));
+  fakeNow+=1000; loop(); assert(!testActive && utcEpoch==before+61);
+  assert(EEPROM.writes==patternWrites);
+  send("TEST START"); send("TEST STOP"); assert(!testActive);
+  send("TEST START"); send("OUTPUT 0"); assert(!testActive && !settings.enabled);
+  send("TEST START"); assert(!testActive && Serial.output=="ERR enable_meters_first\n");
+  send("OUTPUT 1");
+  // Test timer survives millis rollover.
+  fakeNow=UINT32_MAX-499; lastTick=fakeNow; send("TEST START");
+  fakeNow=500; loop(); assert(testActive && testStep==1);
+  send("TEST STOP");
+  // Reset reference for the existing clock/button checks below.
+  fakeNow=0; setClock(dateEpoch(2026,1,1)+20*3600+30*60,"usb");
   unsigned writes = EEPROM.writes;
   fakeNow += 61000; loop(); assert(utcEpoch == dateEpoch(2026,1,1)+20*3600+31*60+1);
   assert(EEPROM.writes == writes); // no flash wear from clock ticks
   // Bounce rejected, initial press accepted, hold repeat and release.
+  send("TEST START");
   pins[2]=LOW; loop(); fakeNow+=10; loop(); assert(!hourButton.stable);
-  fakeNow+=21; loop(); assert(hourButton.stable && manualOverride && !strcmp(timeSource,"buttons"));
+  fakeNow+=21; loop(); assert(!testActive && hourButton.stable && manualOverride && !strcmp(timeSource,"buttons"));
   uint32_t t = utcEpoch;
   fakeNow+=799; loop(); assert(utcEpoch == t);
   fakeNow+=1; loop(); assert(utcEpoch == t+3600);
@@ -51,7 +73,7 @@ int main() {
   saved.password[0]='X'; assert(!valid(saved));
   EEPROM.data[0]=0; EEPROM.get(0,saved); assert(!valid(saved));
   // Failed writes latch outputs off, including future updates.
-  Wire.failingAddress=DAC_ADDRESS; updateGauges(); assert(!dacReady);
+  testActive=true; Wire.failingAddress=DAC_ADDRESS; updateGauges(); assert(!dacReady && !testActive);
   size_t n=Wire.writes.size(); updateGauges(); assert(Wire.writes.size()==n);
   // US DST exact transition boundaries (Pacific).
   Settings s=defaults(); s.offsetMinutes=-480; s.dst=1;

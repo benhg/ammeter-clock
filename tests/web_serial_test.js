@@ -8,6 +8,8 @@ const ClockUSB=require('../tools/clock_setup/web_serial.js');
   assert.throws(()=>ClockUSB.command({action:'scale',hour:4096,minute:4095}));
   assert.throws(()=>ClockUSB.command({action:'output',enabled:'true'}));
   assert.equal(ClockUSB.command({action:'zone',offset:-480,dst:1}),'ZONE -480 1');
+  assert.equal(ClockUSB.command({action:'test',operation:'start'}),'TEST START');
+  assert.throws(()=>ClockUSB.command({action:'test',operation:'restart'}));
   let deliver, writes=[], released=0, closed=0;
   const port={
     getInfo:()=>({usbVendorId:0x2341,usbProductId:0x1002}),
