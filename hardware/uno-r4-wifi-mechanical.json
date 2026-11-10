@@ -1,0 +1,318 @@
+{
+  "source": "https://docs.arduino.cc/static/41d76ccb600d3cb1ec1e98a28d24f111/ABX00087-cad-files.zip",
+  "source_file": "Altium files/PCB.PcbDoc",
+  "method": "KiCad 8 Altium import; use pad coordinates and footprint XY bounds, not imported electrical connectivity",
+  "alignment": "Translation: original CAD X -64.2111 mm, Y -28.3336 mm -> shield KiCad coordinates",
+  "headers": {
+    "JANALOG": [
+      {
+        "pin": "1",
+        "xy_shield_mm": [
+          77.94,
+          100.8
+        ],
+        "net": "MD_1"
+      },
+      {
+        "pin": "2",
+        "xy_shield_mm": [
+          80.48,
+          100.8
+        ],
+        "net": "+5V"
+      },
+      {
+        "pin": "3",
+        "xy_shield_mm": [
+          83.02,
+          100.8
+        ],
+        "net": "~{RESET}_1"
+      },
+      {
+        "pin": "4",
+        "xy_shield_mm": [
+          85.56,
+          100.8
+        ],
+        "net": "+3V3"
+      },
+      {
+        "pin": "5",
+        "xy_shield_mm": [
+          88.1,
+          100.8
+        ],
+        "net": "+5V"
+      },
+      {
+        "pin": "6",
+        "xy_shield_mm": [
+          90.64,
+          100.8
+        ],
+        "net": "GND"
+      },
+      {
+        "pin": "7",
+        "xy_shield_mm": [
+          93.18,
+          100.8
+        ],
+        "net": "GND"
+      },
+      {
+        "pin": "8",
+        "xy_shield_mm": [
+          95.72,
+          100.8
+        ],
+        "net": "VIN"
+      },
+      {
+        "pin": "9",
+        "xy_shield_mm": [
+          100.8,
+          100.8
+        ],
+        "net": "P014_AN09_DAC_1"
+      },
+      {
+        "pin": "10",
+        "xy_shield_mm": [
+          103.34,
+          100.8
+        ],
+        "net": "P000_AN00_AMP+_1"
+      },
+      {
+        "pin": "11",
+        "xy_shield_mm": [
+          105.88,
+          100.8
+        ],
+        "net": "P001_AN01_AMP-_1"
+      },
+      {
+        "pin": "12",
+        "xy_shield_mm": [
+          108.42,
+          100.8
+        ],
+        "net": "P002_AN02_AMPO_1"
+      },
+      {
+        "pin": "13",
+        "xy_shield_mm": [
+          110.96,
+          100.8
+        ],
+        "net": "P101_AN21_SDA_1"
+      },
+      {
+        "pin": "14",
+        "xy_shield_mm": [
+          113.5,
+          100.8
+        ],
+        "net": "P100_AN22_SCL_1"
+      }
+    ],
+    "JDIGITAL": [
+      {
+        "pin": "1",
+        "xy_shield_mm": [
+          113.5,
+          52.54
+        ],
+        "net": "P301_SCI2_RXD_1"
+      },
+      {
+        "pin": "2",
+        "xy_shield_mm": [
+          110.96,
+          52.54
+        ],
+        "net": "P302_SCI2_TXD_1"
+      },
+      {
+        "pin": "3",
+        "xy_shield_mm": [
+          108.42,
+          52.54
+        ],
+        "net": "P104_IRQ01_GPT1_B_1"
+      },
+      {
+        "pin": "4",
+        "xy_shield_mm": [
+          105.88,
+          52.54
+        ],
+        "net": "P105_IRQ00_GPT1_A_1"
+      },
+      {
+        "pin": "5",
+        "xy_shield_mm": [
+          103.34,
+          52.54
+        ],
+        "net": "P106_GPT0_B_1"
+      },
+      {
+        "pin": "6",
+        "xy_shield_mm": [
+          100.8,
+          52.54
+        ],
+        "net": "P107_GPT0_A_1"
+      },
+      {
+        "pin": "7",
+        "xy_shield_mm": [
+          98.26,
+          52.54
+        ],
+        "net": "P111_GPT3_A_1"
+      },
+      {
+        "pin": "8",
+        "xy_shield_mm": [
+          95.72,
+          52.54
+        ],
+        "net": "P112_GPT3_B_1"
+      },
+      {
+        "pin": "9",
+        "xy_shield_mm": [
+          91.656,
+          52.54
+        ],
+        "net": "P304_GPT7_A_1"
+      },
+      {
+        "pin": "10",
+        "xy_shield_mm": [
+          89.116,
+          52.54
+        ],
+        "net": "P303_GPT7_B_1"
+      },
+      {
+        "pin": "11",
+        "xy_shield_mm": [
+          86.576,
+          52.54
+        ],
+        "net": "P103_SPI0_SSL_GPT2_A_CAN0_TX_1"
+      },
+      {
+        "pin": "12",
+        "xy_shield_mm": [
+          84.036,
+          52.54
+        ],
+        "net": "P411_SPI0_MOSI_GPT6_A_1"
+      },
+      {
+        "pin": "13",
+        "xy_shield_mm": [
+          81.496,
+          52.54
+        ],
+        "net": "P410_SPI0_MISO_GPT6_B_1"
+      },
+      {
+        "pin": "14",
+        "xy_shield_mm": [
+          78.956,
+          52.54
+        ],
+        "net": "P102_SPI0_RSPCK_GPT2_B_CAN0_RX_1"
+      },
+      {
+        "pin": "15",
+        "xy_shield_mm": [
+          76.416,
+          52.54
+        ],
+        "net": "GND"
+      },
+      {
+        "pin": "16",
+        "xy_shield_mm": [
+          73.876,
+          52.54
+        ],
+        "net": "AREF_1"
+      },
+      {
+        "pin": "17",
+        "xy_shield_mm": [
+          71.336,
+          52.54
+        ],
+        "net": "P101_AN21_SDA_1"
+      },
+      {
+        "pin": "18",
+        "xy_shield_mm": [
+          68.796,
+          52.54
+        ],
+        "net": "P100_AN22_SCL_1"
+      }
+    ]
+  },
+  "holes_xy_shield_mm": [
+    [
+      116.04,
+      95.72
+    ],
+    [
+      63.97,
+      100.8
+    ],
+    [
+      116.04,
+      67.78
+    ],
+    [
+      65.24,
+      52.54
+    ]
+  ],
+  "component_bounds_shield_mm": {
+    "J1": [
+      49.299997,
+      60.304,
+      56.4,
+      70.644
+    ],
+    "J3": [
+      112.11392,
+      71.21992,
+      117.5132,
+      79.2862
+    ],
+    "J5": [
+      47.91197,
+      90.158,
+      63.14,
+      101.307
+    ],
+    "J6": [
+      64.9098,
+      58.59292,
+      72.97608,
+      63.9922
+    ],
+    "M1": [
+      50.19998,
+      74.01502,
+      70.94998,
+      89.66502
+    ]
+  }
+}

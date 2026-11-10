@@ -110,7 +110,7 @@
       },
       "rules": {
         "max_error": 0.005,
-        "min_clearance": 0.0,
+        "min_clearance": 0.15,
         "min_connection": 0.0,
         "min_copper_edge_clearance": 0.5,
         "min_hole_clearance": 0.25,
@@ -588,7 +588,7 @@
   },
   "sheets": [
     [
-      "a512fae3-10e8-45e2-be15-daf6850b1088",
+      "6e296004-361b-41eb-af78-326ff2d60e7a",
       "Root"
     ]
   ],

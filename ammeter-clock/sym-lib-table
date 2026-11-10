@@ -1,0 +1,1 @@
+(sym_lib_table (lib (name "AmmeterClock") (type "KiCad") (uri "${KIPRJMOD}/AmmeterClock.kicad_sym") (options "") (descr "Clock shield functional symbols")))

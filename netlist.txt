@@ -1,23 +1,10 @@
-Netlist: 
-1. VCC -> DAC_Hour.VDD, DAC_Minute.VDD, OpAmp_Hour.VCC, OpAmp_Minute.VCC
-2. GND -> DAC_Hour.VSS, DAC_Minute.VSS, OpAmp_Hour.GND, OpAmp_Minute.GND, Shunt_Hour.2, Shunt_Minute.2
-
-DAC_Hour.OUT -> OpAmp_Hour.IN+  
-OpAmp_Hour.OUT -> MOSFET_Hour.G  
-OpAmp_Hour.IN- -> Shunt_Hour.1
-
-DAC_Minute.OUT -> OpAmp_Minute.IN+  
-OpAmp_Minute.OUT -> MOSFET_Minute.G  
-OpAmp_Minute.IN- -> Shunt_Minute.1
-
-Gauge_Hour.Terminal1 -> MOSFET_Hour.D  
-MOSFET_Hour.S -> Shunt_Hour.1  
-
-Gauge_Minute.Terminal1 -> MOSFET_Minute.D  
-MOSFET_Minute.S -> Shunt_Minute.1  
-
-Button_Hour.Terminal1 -> Arduino.Pin2  
-Button_Hour.Terminal2 -> GND  
-
-Button_Minute.Terminal1 -> Arduino.Pin3  
-Button_Minute.Terminal2 -> GND
+KN6UBF clock Rev F4: Pololu module, unchanged meter circuit values.
+26 assembler placements: 6 SMT + 20 THT, all top; U4 is socket only.
+R1 is 0805 22k 0.1%; C5 is 33uF/50V, D6.3mm, 2.5mm pitch.
+C4 is 10uF/25V D5x11mm; buttons 5.5mm high; pull-ups 4.7k 1%.
+Individual Samtec SSQ -03 headers have 10mm tails; target 12mm host-top to
+shield-bottom separation, with actual insertion/USB/ESP fit checked physically.
+Full fabrication: hardware/fabrication/ammeter-clock-rev-f4-fabrication.zip
+Dated public JLC inventory is positive for all BOM entries; not reserved.
+Customer buys Pololu U3V16F15, solders header to module, plugs into socket.
+Pololu startup, real host fit and meter calibration remain prototype checks.

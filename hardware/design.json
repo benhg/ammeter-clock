@@ -1,0 +1,675 @@
+{
+  "root_uuid": "6e296004-361b-41eb-af78-326ff2d60e7a",
+  "parts": [
+    {
+      "ref": "J1",
+      "value": "UNO_R3_POWER",
+      "typ": "POWER",
+      "fp": "AmmeterClock:Uno_R3_Stackable_1x08",
+      "nets": {
+        "5": "+5V",
+        "6": "GND",
+        "7": "GND"
+      },
+      "xy": [
+        77.94,
+        100.8
+      ],
+      "rot": 90,
+      "sch": [
+        35.56,
+        43.18
+      ],
+      "uuid": "9eb9c4d8-18dc-4145-bbec-aa87e3afaed6",
+      "note": "Samtec SSQ -03; 10mm tails DOWN; target 12mm board gap, verify real fit"
+    },
+    {
+      "ref": "J7",
+      "value": "UNO_R3_ANALOG",
+      "typ": "ANALOG",
+      "fp": "AmmeterClock:Uno_R3_Stackable_1x06",
+      "nets": {
+        "5": "SDA",
+        "6": "SCL"
+      },
+      "xy": [
+        100.8,
+        100.8
+      ],
+      "rot": 90,
+      "sch": [
+        35.56,
+        93.98
+      ],
+      "uuid": "1192c87e-b728-4a37-90a5-97dbe20fc3cc",
+      "note": "Samtec SSQ -03; 10mm tails DOWN; target 12mm board gap, verify real fit"
+    },
+    {
+      "ref": "J8",
+      "value": "UNO_R3_D0_D7",
+      "typ": "D0_7",
+      "fp": "AmmeterClock:Uno_R3_Stackable_1x08",
+      "nets": {
+        "3": "BTN_H",
+        "4": "BTN_M"
+      },
+      "xy": [
+        113.5,
+        52.54
+      ],
+      "rot": 270,
+      "sch": [
+        35.56,
+        144.78
+      ],
+      "uuid": "294bceca-e85f-46ce-8ac6-aefd166cd4f1",
+      "note": "Samtec SSQ -03; 10mm tails DOWN; target 12mm board gap, verify real fit"
+    },
+    {
+      "ref": "J9",
+      "value": "UNO_R3_D8_SCL",
+      "typ": "D8_SCL",
+      "fp": "AmmeterClock:Uno_R3_Stackable_1x10",
+      "nets": {
+        "7": "GND",
+        "9": "SDA",
+        "10": "SCL"
+      },
+      "xy": [
+        91.656,
+        52.54
+      ],
+      "rot": 270,
+      "sch": [
+        35.56,
+        200.66
+      ],
+      "uuid": "460c8280-1561-438b-8471-b91b8fc7a155",
+      "note": "Samtec SSQ -03; 10mm tails DOWN; target 12mm board gap, verify real fit"
+    },
+    {
+      "ref": "U1",
+      "value": "MCP4728-E/UN",
+      "typ": "DAC",
+      "fp": "Package_SO:MSOP-10_3x3mm_P0.5mm",
+      "nets": {
+        "1": "+5V",
+        "2": "SCL",
+        "3": "SDA",
+        "4": "GND",
+        "8": "MIN_DAC",
+        "9": "HOUR_DAC",
+        "10": "GND"
+      },
+      "xy": [
+        81,
+        72
+      ],
+      "rot": 0,
+      "sch": [
+        109.22,
+        53.34
+      ],
+      "uuid": "16cf5edc-bf96-4b5d-996e-d547abbb8c84",
+      "note": "Internal 2.048V reference, gain 2; A=hours B=minutes; LDAC grounded"
+    },
+    {
+      "ref": "U3",
+      "value": "OPA197ID",
+      "typ": "AMP",
+      "fp": "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm",
+      "nets": {
+        "2": "HOUR_FB",
+        "3": "HOUR_AMP_IN",
+        "4": "GND",
+        "6": "AMP_DRIVE",
+        "7": "+15V"
+      },
+      "xy": [
+        95,
+        70
+      ],
+      "rot": 0,
+      "sch": [
+        185.42,
+        43.18
+      ],
+      "uuid": "95e9415e-e5c8-4589-b86c-2af1b64e5f71",
+      "note": ""
+    },
+    {
+      "ref": "U4",
+      "value": "Pololu_U3V16F15",
+      "typ": "BOOST",
+      "fp": "AmmeterClock:Pololu_U3V16F15_Socket",
+      "nets": {
+        "1": "+5V",
+        "2": "GND",
+        "3": "+15V"
+      },
+      "xy": [
+        68,
+        86
+      ],
+      "rot": 0,
+      "sch": [
+        109.22,
+        134.62
+      ],
+      "uuid": "41f531c8-7b21-4f0d-94bd-7656390f3e79",
+      "note": "Mount top/component side up on elevated 1x3 female socket"
+    },
+    {
+      "ref": "R1",
+      "value": "22k 0.1%",
+      "typ": "PAIR",
+      "fp": "Resistor_SMD:R_0805_2012Metric",
+      "nets": {
+        "1": "HOUR_OUT",
+        "2": "HOUR_FB"
+      },
+      "xy": [
+        102,
+        79
+      ],
+      "rot": 0,
+      "sch": [
+        185.42,
+        88.9
+      ],
+      "uuid": "cd526950-538f-4b25-9cd0-cba35dabdd15",
+      "note": ""
+    },
+    {
+      "ref": "R2",
+      "value": "10k 0.1%",
+      "typ": "PAIR",
+      "fp": "Resistor_SMD:R_0805_2012Metric",
+      "nets": {
+        "1": "HOUR_FB",
+        "2": "GND"
+      },
+      "xy": [
+        100.4,
+        86.1
+      ],
+      "rot": 0,
+      "sch": [
+        185.42,
+        119.38
+      ],
+      "uuid": "5834fa08-1089-4c5e-95f3-6e9e03d15c30",
+      "note": "10kohm+/-0.1%,10ppm/C,130mW,0805 SMT; gain unchanged. Dissipation at3.75Vfeedback approximately1.4mW. Replaces precision axial resistor; F4 local reroute."
+    },
+    {
+      "ref": "R3",
+      "value": "56k 1%",
+      "typ": "PAIR",
+      "fp": "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal",
+      "nets": {
+        "1": "MIN_DAC",
+        "2": "MIN_OUT"
+      },
+      "xy": [
+        90.5,
+        95
+      ],
+      "rot": 0,
+      "sch": [
+        185.42,
+        149.86
+      ],
+      "uuid": "a1305cf3-47b5-403c-aa9b-f4dac75347a5",
+      "note": "Initial safe span; final value/dial requires calibration"
+    },
+    {
+      "ref": "R4",
+      "value": "4.7k",
+      "typ": "PAIR",
+      "fp": "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal",
+      "nets": {
+        "1": "+5V",
+        "2": "SDA"
+      },
+      "xy": [
+        77,
+        60
+      ],
+      "rot": 0,
+      "sch": [
+        109.22,
+        175.26
+      ],
+      "uuid": "896a2c93-8aaa-4f1b-9c1f-0f3940a834c5",
+      "note": ""
+    },
+    {
+      "ref": "R5",
+      "value": "4.7k",
+      "typ": "PAIR",
+      "fp": "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal",
+      "nets": {
+        "1": "+5V",
+        "2": "SCL"
+      },
+      "xy": [
+        77,
+        65
+      ],
+      "rot": 0,
+      "sch": [
+        109.22,
+        205.74
+      ],
+      "uuid": "b3e91a8e-5673-45bd-a8ab-8f6ad727e02f",
+      "note": ""
+    },
+    {
+      "ref": "C1",
+      "value": "100n",
+      "typ": "PAIR",
+      "fp": "AmmeterClock:FH_CT4_0805_P5.08mm",
+      "nets": {
+        "1": "+5V",
+        "2": "GND"
+      },
+      "xy": [
+        80,
+        78
+      ],
+      "rot": 0,
+      "sch": [
+        256.54,
+        43.18
+      ],
+      "uuid": "42be71c2-5c38-4f3f-8384-249778a27b0b",
+      "note": "100nF50V X7R+/-10%,LEADED not SMT despite0805 in MPN.5.08mm leadpitch,max4.2x3.8x3.8mm body,0.50+/-0.10mm leads. Custom footprint1.0mm holes accommodates lead tolerances; nominal value unchanged."
+    },
+    {
+      "ref": "C6",
+      "value": "1n C0G 25V",
+      "typ": "PAIR",
+      "fp": "Capacitor_SMD:C_0805_2012Metric",
+      "nets": {
+        "1": "AMP_DRIVE",
+        "2": "HOUR_FB"
+      },
+      "xy": [
+        89.75,
+        77
+      ],
+      "rot": 0,
+      "sch": [
+        256.54,
+        73.66
+      ],
+      "uuid": "486dcd8f-c44b-4119-8b7a-b74ba7575231",
+      "note": "1nF50V C0G+/-5%,0805 SMT. Same feedback compensation value/dielectric/tolerance; F4 local reroute. Check JLC basic-part pricing in live quote."
+    },
+    {
+      "ref": "R6",
+      "value": "47R 1%",
+      "typ": "PAIR",
+      "fp": "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal",
+      "nets": {
+        "1": "AMP_DRIVE",
+        "2": "HOUR_OUT"
+      },
+      "xy": [
+        91,
+        82
+      ],
+      "rot": 0,
+      "sch": [
+        185.42,
+        180.34
+      ],
+      "uuid": "d764867a-d898-4ab0-afb3-ba9ff5473c86",
+      "note": "Output isolation; DC feedback senses meter side"
+    },
+    {
+      "ref": "C3",
+      "value": "100n 25V",
+      "typ": "PAIR",
+      "fp": "AmmeterClock:FH_CT4_0805_P5.08mm",
+      "nets": {
+        "1": "+15V",
+        "2": "GND"
+      },
+      "xy": [
+        89.5,
+        61
+      ],
+      "rot": 0,
+      "sch": [
+        256.54,
+        104.14
+      ],
+      "uuid": "cb0ea4d7-f025-44a1-87a5-eaa313bb0f7d",
+      "note": "100nF50V X7R+/-10%,LEADED not SMT despite0805 in MPN.5.08mm leadpitch,max4.2x3.8x3.8mm body,0.50+/-0.10mm leads. Custom footprint1.0mm holes accommodates lead tolerances; nominal value unchanged."
+    },
+    {
+      "ref": "C4",
+      "value": "10u 25V",
+      "typ": "POLAR",
+      "fp": "Capacitor_THT:CP_Radial_D5.0mm_P2.00mm",
+      "nets": {
+        "1": "+15V",
+        "2": "GND"
+      },
+      "xy": [
+        71,
+        98
+      ],
+      "rot": 0,
+      "sch": [
+        256.54,
+        134.62
+      ],
+      "uuid": "609294ec-239f-44cc-a0ac-3d38d72df00e",
+      "note": ""
+    },
+    {
+      "ref": "C5",
+      "value": "33u 10V",
+      "typ": "POLAR",
+      "fp": "Capacitor_THT:CP_Radial_D6.3mm_P2.50mm",
+      "nets": {
+        "1": "+5V",
+        "2": "GND"
+      },
+      "xy": [
+        67,
+        92
+      ],
+      "rot": 0,
+      "sch": [
+        256.54,
+        165.1
+      ],
+      "uuid": "9142db93-c29e-4056-af3d-474d78d3442d",
+      "note": ""
+    },
+    {
+      "ref": "J2",
+      "value": "HOUR_0-15V",
+      "typ": "POLAR",
+      "fp": "AmmeterClock:JILN_JL301_2P_P5.00mm",
+      "nets": {
+        "1": "HOUR_OUT",
+        "2": "GND"
+      },
+      "xy": [
+        107,
+        73
+      ],
+      "rot": 90.0,
+      "sch": [
+        327.66,
+        43.18
+      ],
+      "uuid": "b0b76532-5a23-453e-80bb-11fe0fe42e10",
+      "note": "Two-position5.00mm-pitch screw terminal; body10x7.6x10.1mm,0.9mm leads,3.5mm tails. Custom footprint based on manufacturer drawing, wire entry toward +localY.15A/300V greatly exceeds meter/button loads. Blue housing.1.3mm drills."
+    },
+    {
+      "ref": "J3",
+      "value": "MINUTE_100uA",
+      "typ": "POLAR",
+      "fp": "AmmeterClock:JILN_JL301_2P_P5.00mm",
+      "nets": {
+        "1": "MIN_OUT",
+        "2": "GND"
+      },
+      "xy": [
+        107,
+        90
+      ],
+      "rot": 90.0,
+      "sch": [
+        327.66,
+        78.74
+      ],
+      "uuid": "9c63b000-49fc-420f-a138-92aeff776fb9",
+      "note": "Two-position5.00mm-pitch screw terminal; body10x7.6x10.1mm,0.9mm leads,3.5mm tails. Custom footprint based on manufacturer drawing, wire entry toward +localY.15A/300V greatly exceeds meter/button loads. Blue housing.1.3mm drills."
+    },
+    {
+      "ref": "J4",
+      "value": "HOUR_EXT_BUTTON",
+      "typ": "PAIR",
+      "fp": "AmmeterClock:JILN_JL301_2P_P5.00mm",
+      "nets": {
+        "1": "BTN_H",
+        "2": "GND"
+      },
+      "xy": [
+        63,
+        68
+      ],
+      "rot": 0.0,
+      "sch": [
+        327.66,
+        114.3
+      ],
+      "uuid": "e3cdfafe-94b8-4a37-9a96-13a16f0835d7",
+      "note": "Two-position5.00mm-pitch screw terminal; body10x7.6x10.1mm,0.9mm leads,3.5mm tails. Custom footprint based on manufacturer drawing, wire entry toward +localY.15A/300V greatly exceeds meter/button loads. Blue housing.1.3mm drills."
+    },
+    {
+      "ref": "J5",
+      "value": "MIN_EXT_BUTTON",
+      "typ": "PAIR",
+      "fp": "AmmeterClock:JILN_JL301_2P_P5.00mm",
+      "nets": {
+        "1": "BTN_M",
+        "2": "GND"
+      },
+      "xy": [
+        78.3,
+        92
+      ],
+      "rot": 0.0,
+      "sch": [
+        327.66,
+        149.86
+      ],
+      "uuid": "c768afc0-418d-4e69-8e99-2b51bd16f83a",
+      "note": "Two-position5.00mm-pitch screw terminal; body10x7.6x10.1mm,0.9mm leads,3.5mm tails. Custom footprint based on manufacturer drawing, wire entry toward +localY.15A/300V greatly exceeds meter/button loads. Blue housing.1.3mm drills."
+    },
+    {
+      "ref": "SW1",
+      "value": "HOUR_SET_NO",
+      "typ": "PAIR",
+      "fp": "Button_Switch_THT:SW_PUSH_6mm",
+      "nets": {
+        "1": "BTN_H",
+        "2": "GND"
+      },
+      "xy": [
+        98,
+        58.5
+      ],
+      "rot": 0,
+      "sch": [
+        185.42,
+        213.36
+      ],
+      "uuid": "7bdea7dc-fd1e-4be0-9da5-594f709b17e1",
+      "note": "6mm normally-open momentary tactile button; parallel with J4"
+    },
+    {
+      "ref": "SW2",
+      "value": "MIN_SET_NO",
+      "typ": "PAIR",
+      "fp": "Button_Switch_THT:SW_PUSH_6mm",
+      "nets": {
+        "1": "BTN_M",
+        "2": "GND"
+      },
+      "xy": [
+        108,
+        58.5
+      ],
+      "rot": 0,
+      "sch": [
+        256.54,
+        205.74
+      ],
+      "uuid": "84e51f95-ab49-40e3-9d6c-5a17ec479496",
+      "note": "6mm normally-open momentary tactile button; parallel with J5"
+    },
+    {
+      "ref": "J6",
+      "value": "RTC_I2C_OPTION",
+      "typ": "HEADER4",
+      "fp": "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical",
+      "nets": {
+        "1": "+5V",
+        "2": "GND",
+        "3": "SDA",
+        "4": "SCL"
+      },
+      "xy": [
+        89,
+        89
+      ],
+      "rot": 90,
+      "sch": [
+        327.66,
+        190.5
+      ],
+      "uuid": "860ec2da-f638-4f10-bf46-6455ed81d765",
+      "note": "Optional 5V-compatible RTC breakout; RTC firmware not yet implemented"
+    },
+    {
+      "ref": "H1",
+      "value": "UNO_3.2mm",
+      "typ": "MOUNT",
+      "fp": "AmmeterClock:Uno_MountHole_3.2mm",
+      "nets": {},
+      "xy": [
+        116.04,
+        67.78
+      ],
+      "rot": 0,
+      "sch": [
+        260.16,
+        220.98
+      ],
+      "uuid": "ffc66287-91c7-4075-b545-87805ac71cd9",
+      "note": "Uno hole position; verify spacer/head clearance near shield headers"
+    },
+    {
+      "ref": "H2",
+      "value": "UNO_3.2mm",
+      "typ": "MOUNT",
+      "fp": "AmmeterClock:Uno_MountHole_3.2mm",
+      "nets": {},
+      "xy": [
+        116.04,
+        95.72
+      ],
+      "rot": 0,
+      "sch": [
+        270.32,
+        220.98
+      ],
+      "uuid": "378e41dc-b5cc-461c-9b5a-c836d4f2064b",
+      "note": "Uno hole position; verify spacer/head clearance near shield headers"
+    },
+    {
+      "ref": "H3",
+      "value": "UNO_3.2mm",
+      "typ": "MOUNT",
+      "fp": "AmmeterClock:Uno_MountHole_3.2mm",
+      "nets": {},
+      "xy": [
+        65.24,
+        52.54
+      ],
+      "rot": 0,
+      "sch": [
+        280.48,
+        220.98
+      ],
+      "uuid": "7292a0aa-e40d-42e6-8a99-3be485b07ff0",
+      "note": "Uno hole position; verify spacer/head clearance near shield headers"
+    },
+    {
+      "ref": "H4",
+      "value": "UNO_3.2mm",
+      "typ": "MOUNT",
+      "fp": "AmmeterClock:Uno_MountHole_3.2mm",
+      "nets": {},
+      "xy": [
+        63.97,
+        100.8
+      ],
+      "rot": 0,
+      "sch": [
+        290.64,
+        220.98
+      ],
+      "uuid": "b8588570-288d-4499-883b-87f5047ef4e3",
+      "note": "Uno hole position; verify spacer/head clearance near shield headers"
+    },
+    {
+      "ref": "R9",
+      "value": "4.7k 1%",
+      "typ": "PAIR",
+      "fp": "Resistor_SMD:R_0805_2012Metric",
+      "nets": {
+        "1": "HOUR_DAC",
+        "2": "HOUR_AMP_IN"
+      },
+      "xy": [
+        99.5,
+        76.5
+      ],
+      "rot": 0,
+      "sch": [
+        185.42,
+        73.66
+      ],
+      "uuid": "21aff5cf-0d77-4143-ad62-c38eb53a8d4a",
+      "note": "Series amplifier-input current limiting when 15V supply is absent/delayed"
+    }
+  ],
+  "keepouts": [
+    [
+      "USB shell",
+      50,
+      58.34,
+      60.41,
+      72.14
+    ],
+    [
+      "DC jack",
+      50,
+      90.05,
+      62.3,
+      101.6
+    ],
+    [
+      "ICSP USB / R4 ESP header",
+      63.98,
+      54.3,
+      73.25,
+      64.3
+    ],
+    [
+      "ICSP main",
+      111.857,
+      71.09,
+      117.937,
+      79.71
+    ],
+    [
+      "R4 WiFi antenna",
+      50,
+      73,
+      61,
+      91
+    ]
+  ],
+  "form_factor": "Uno R3 shield",
+  "revision": "F4"
+}
