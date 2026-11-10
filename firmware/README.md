@@ -1,4 +1,4 @@
-# Clock firmware 0.2.2
+# Clock firmware 0.3.0
 
 `AmmeterClock/AmmeterClock.ino` supports Uno R3 and Uno R4 WiFi without external libraries. Install the appropriate official Arduino board package. The R4 uses the included WiFiS3 library; R3 builds omit networking. No external RTC is required or currently read by this firmware.
 

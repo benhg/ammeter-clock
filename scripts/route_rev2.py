@@ -1,6 +1,6 @@
-"""One-time local routing of Rev F4 R2/C6 replacements.
+"""One-time local routing of Rev2 seconds output and rotated J5.
 KiCad DRC is authoritative; never treat router success as fabrication approval.
-Run once with KiCad bundled Python after the F4 footprint replacement. No third-party modules.
+Run once with KiCad bundled Python after build_rev2.py. No third-party modules.
 """
 import pcbnew as pcb
 from pathlib import Path
