@@ -1,0 +1,14 @@
+minute_corner_033
+Vdac dac 0 4.095
+Rout dac series 20
+Rseries series meter 56560
+Rcoil meter 0 1000
+
+.control
+set wr_singlescale
+set wr_vecnames
+op
+wrdata results/minute_corner_033.dat i(Vdac)
+quit
+.endc
+.end

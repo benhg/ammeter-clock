@@ -1,0 +1,21 @@
+hour_step_1e-09
+.include models/OPAx197.LIB
+Vboost vp 0 15
+Vdac dac 0 PWL(0 .4 1m .4 1.001m 3.75 3m 3.75 3.001m .4)
+Xd amp_in fb vp 0 drive OPAx197
+Rprotect dac amp_in 4700
+Rf out fb 22000
+Rg fb 0 10000
+Riso drive out 47
+Cf drive fb 1n
+Rmeter out 0 100000
+Cload out 0 1e-09
+
+.control
+set wr_singlescale
+set wr_vecnames
+tran 1u 5m 0 1u
+wrdata results/hour_step_1e-09.dat v(out)
+quit
+.endc
+.end

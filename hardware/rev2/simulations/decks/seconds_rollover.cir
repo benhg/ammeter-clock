@@ -1,0 +1,12 @@
+seconds_rollover
+Vsecond s 0 PWL(0 4.095 1m 4.095 1.001m 0 2m 0)
+Rseries s 0 56000
+
+.control
+set wr_singlescale
+set wr_vecnames
+tran 1u 2m
+wrdata results/seconds_rollover.dat i(Vsecond)
+quit
+.endc
+.end

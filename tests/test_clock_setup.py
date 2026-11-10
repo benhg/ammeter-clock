@@ -40,6 +40,19 @@ class SetupTests(unittest.TestCase):
         self.assertEqual(app.make_command(dict(action='test',operation='stop')),'TEST STOP')
         with self.assertRaises(ValueError): app.make_command(dict(action='test',operation='restart'))
 
+    def test_calibration_commands(self):
+        for operation,values,expected in [
+            ('begin',dict(seconds=True),'CAL BEGIN 1'),
+            ('target',dict(hour=12,minute=30,second=30),'CAL TARGET 12 30 30'),
+            ('scale',dict(hour=3719,minute=3413,second=3360),'CAL SCALE 3719 3413 3360'),
+            ('save',{},'CAL SAVE'),('cancel',{},'CAL CANCEL'),('sweep',{},'CAL SWEEP')]:
+            self.assertEqual(app.make_command(dict(action='calibration',operation=operation,**values)),expected)
+        for values in [dict(operation='target',hour=13,minute=30,second=0),
+                       dict(operation='scale',hour=0,minute=1,second=1),
+                       dict(operation='begin',seconds='yes'),dict(operation='unknown')]:
+            with self.assertRaises(ValueError):app.make_command(dict(action='calibration',**values))
+        self.assertEqual(app.make_command(dict(action='seconds',enabled=False)),'SECONDS 0')
+
     def test_serial_framing(self):
         device=app.Device(); device.serial=FakeSerial()
         self.assertEqual(device.request('STATUS'),{'protocol':1})

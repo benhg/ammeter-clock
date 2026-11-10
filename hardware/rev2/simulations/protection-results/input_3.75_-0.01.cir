@@ -1,0 +1,14 @@
+R9 protection - assumed 0.3V diode plus 1ohm dynamic resistance
+Vdac dac 0 3.75
+Vrail rail 0 PWL(0 0 1m 0 11m 15 15m 15 25m 0 30m 0)
+Rinput dac pin 4653.0
+Bclamp pin rail I=max((V(pin)-V(rail)-.3),0)
+Rleak pin 0 1G
+.control
+set wr_singlescale
+set wr_vecnames
+tran 10u 30m 0 10u
+wrdata protection-results/input_3.75_-0.01.dat v(rail) v(pin) i(Vdac)
+quit
+.endc
+.end

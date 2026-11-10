@@ -1,0 +1,20 @@
+hour_corner_049
+.include models/OPAx197.LIB
+Vboost vp 0 15
+Vdac dac 0 PWL(0 .3 1m .3 1.001m 3.75)
+Xd amp_in fb vp 0 drive OPAx197
+Rprotect dac amp_in 4700
+Rf out fb 22000.0
+Rg fb 0 10000.0
+Riso drive out 47
+Cf drive fb 1n
+Rmeter out 0 1000
+
+.control
+set wr_singlescale
+set wr_vecnames
+tran 10u 3m 0 10u
+wrdata results/hour_corner_049.dat v(out) i(Vboost)
+quit
+.endc
+.end

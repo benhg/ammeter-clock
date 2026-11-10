@@ -4,41 +4,48 @@
 #include <string.h>
 
 namespace ClockCore {
-constexpr uint8_t HOUR_CHANNEL = 3, MINUTE_CHANNEL = 2;
+constexpr uint8_t HOUR_CHANNEL = 3, MINUTE_CHANNEL = 2, SECOND_CHANNEL = 1;
 constexpr uint32_t MIN_EPOCH = 1704067200UL; // 2024-01-01
 constexpr uint32_t MAX_EPOCH = 4102444800UL; // 2100-01-01, exclusive
-// Explicit packed layout and checksum: reject incomplete writes or old versions.
+// Keep the v1 layout for migration: installed customers retain calibration/Wi-Fi.
+struct __attribute__((packed)) SettingsV1 {
+  uint32_t magic; uint8_t version; int16_t offsetMinutes; uint8_t dst;
+  uint16_t hourScale, minuteScale; uint8_t enabled;
+  char ssid[33], password[65]; uint16_t checksum;
+};
 struct __attribute__((packed)) Settings {
-  uint32_t magic;
-  uint8_t version;
-  int16_t offsetMinutes; // standard-time UTC offset
-  uint8_t dst; // 0=none, 1=US, 2=EU
-  uint16_t hourScale, minuteScale;
-  uint8_t enabled;
+  uint32_t magic; uint8_t version; int16_t offsetMinutes; uint8_t dst;
+  uint16_t hourScale, minuteScale; uint8_t enabled;
   char ssid[33], password[65];
+  uint16_t secondScale; uint8_t secondsEnabled;
   uint16_t checksum;
 };
-inline uint16_t checksum(const Settings &s) {
-  const uint8_t *p = reinterpret_cast<const uint8_t*>(&s);
-  uint16_t crc = 0xffff;
-  for (size_t i = 0; i < offsetof(Settings, checksum); ++i) {
-    crc ^= uint16_t(p[i]) << 8;
-    for (uint8_t j = 0; j < 8; ++j) crc = (crc & 0x8000) ? (crc << 1) ^ 0x1021 : crc << 1;
+template<class T> inline uint16_t checksum(const T &s) {
+  const uint8_t *p = reinterpret_cast<const uint8_t*>(&s); uint16_t crc=0xffff;
+  for (size_t i=0;i<offsetof(T,checksum);++i) {
+    crc ^= uint16_t(p[i])<<8;
+    for(uint8_t j=0;j<8;++j) crc=(crc&0x8000)?(crc<<1)^0x1021:crc<<1;
   }
   return crc;
 }
 inline Settings defaults() {
-  Settings s = {};
-  s.magic = 0x434C4B32UL; s.version = 1;
-  s.hourScale = 3750; s.minuteScale = 4095;
-  s.checksum = checksum(s);
-  return s;
+  Settings s={};s.magic=0x434C4B32UL;s.version=2;
+  s.hourScale=3750;s.minuteScale=4095;s.secondScale=3360;
+  s.checksum=checksum(s);return s;
+}
+template<class T> inline bool commonValid(const T &s) {
+  return s.magic==0x434C4B32UL && s.offsetMinutes>=-720 && s.offsetMinutes<=840 && s.dst<=2
+    && s.hourScale>0 && s.hourScale<=4095 && s.minuteScale>0 && s.minuteScale<=4095
+    && s.enabled<=1 && s.ssid[32]==0 && s.password[64]==0;
 }
 inline bool valid(const Settings &s) {
-  return s.magic == 0x434C4B32UL && s.version == 1 && s.checksum == checksum(s)
-    && s.offsetMinutes >= -720 && s.offsetMinutes <= 840 && s.dst <= 2
-    && s.hourScale > 0 && s.hourScale <= 4095 && s.minuteScale > 0 && s.minuteScale <= 4095
-    && s.enabled <= 1 && s.ssid[32] == 0 && s.password[64] == 0;
+  return commonValid(s)&&s.version==2&&s.checksum==checksum(s)
+    && s.secondScale>0&&s.secondScale<=4095&&s.secondsEnabled<=1;
+}
+inline bool migrate(const SettingsV1 &old,Settings &s) {
+  if(!commonValid(old)||old.version!=1||old.checksum!=checksum(old)) return false;
+  s=defaults();memcpy(&s,&old,offsetof(SettingsV1,checksum));s.version=2;
+  s.checksum=checksum(s);return true;
 }
 inline bool leap(uint16_t y) { return y % 4 == 0 && (y % 100 != 0 || y % 400 == 0); }
 inline uint8_t monthDays(uint16_t y, uint8_t m) {

@@ -7,3 +7,12 @@ __pycache__/
 .build-clock/
 dist-clock/
 _site-clock/
+
+# Rev2 simulation traces are reproducible; retain decks and summary tables.
+hardware/rev2/ammeter-clock/*.kicad_prl
+hardware/rev2/simulations/models/
+hardware/rev2/simulations/.spiceinit
+hardware/rev2/simulations/results/*.dat
+hardware/rev2/simulations/results/*.log
+hardware/rev2/simulations/protection-results/*.dat
+hardware/rev2/simulations/protection-results/*.log

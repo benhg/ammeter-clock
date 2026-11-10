@@ -1,0 +1,14 @@
+simultaneous_second_017
+Vminute m 0 4.095
+Rminute m 0 66580
+Vsecond s 0 4.095
+Rsecond s 0 66580
+
+.control
+set wr_singlescale
+set wr_vecnames
+op
+wrdata results/simultaneous_second_017.dat i(Vminute) i(Vsecond)
+quit
+.endc
+.end

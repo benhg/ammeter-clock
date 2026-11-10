@@ -1,0 +1,848 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<export version="E">
+  <design>
+    <source>/Users/ben/Desktop/technical/ammeter-clock/hardware/rev2/ammeter-clock/ammeter-clock.kicad_sch</source>
+    <date>2026-11-09T22:20:33-0800</date>
+    <tool>Eeschema 8.0.7</tool>
+    <sheet number="1" name="/" tstamps="/">
+      <title_block>
+        <title>USB-powered analog clock shield</title>
+        <company/>
+        <rev>2</rev>
+        <date/>
+        <source>ammeter-clock.kicad_sch</source>
+        <comment number="1" value="Uno + 0-15 V hour meter + 100 uA minute and second meters"/>
+        <comment number="2" value=""/>
+        <comment number="3" value=""/>
+        <comment number="4" value=""/>
+        <comment number="5" value=""/>
+        <comment number="6" value=""/>
+        <comment number="7" value=""/>
+        <comment number="8" value=""/>
+        <comment number="9" value=""/>
+      </title_block>
+    </sheet>
+  </design>
+  <components>
+    <comp ref="C1">
+      <value>100n</value>
+      <footprint>AmmeterClock:FH_CT4_0805_P5.08mm</footprint>
+      <fields>
+        <field name="Footprint">AmmeterClock:FH_CT4_0805_P5.08mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="AmmeterClock" part="Clock_PAIR" description=""/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="ammeter-clock.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>42be71c2-5c38-4f3f-8384-249778a27b0b</tstamps>
+    </comp>
+    <comp ref="C3">
+      <value>100n 25V</value>
+      <footprint>AmmeterClock:FH_CT4_0805_P5.08mm</footprint>
+      <fields>
+        <field name="Footprint">AmmeterClock:FH_CT4_0805_P5.08mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="AmmeterClock" part="Clock_PAIR" description=""/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="ammeter-clock.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>cb0ea4d7-f025-44a1-87a5-eaa313bb0f7d</tstamps>
+    </comp>
+    <comp ref="C4">
+      <value>10u 25V</value>
+      <footprint>Capacitor_THT:CP_Radial_D5.0mm_P2.00mm</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_THT:CP_Radial_D5.0mm_P2.00mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="AmmeterClock" part="Clock_POLAR" description=""/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="ammeter-clock.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>609294ec-239f-44cc-a0ac-3d38d72df00e</tstamps>
+    </comp>
+    <comp ref="C5">
+      <value>33u 10V</value>
+      <footprint>Capacitor_THT:CP_Radial_D6.3mm_P2.50mm</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_THT:CP_Radial_D6.3mm_P2.50mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="AmmeterClock" part="Clock_POLAR" description=""/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="ammeter-clock.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>9142db93-c29e-4056-af3d-474d78d3442d</tstamps>
+    </comp>
+    <comp ref="C6">
+      <value>1n C0G 25V</value>
+      <footprint>Capacitor_SMD:C_0805_2012Metric</footprint>
+      <fields>
+        <field name="Footprint">Capacitor_SMD:C_0805_2012Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="AmmeterClock" part="Clock_PAIR" description=""/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="ammeter-clock.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>486dcd8f-c44b-4119-8b7a-b74ba7575231</tstamps>
+    </comp>
+    <comp ref="H1">
+      <value>UNO_3.2mm</value>
+      <footprint>AmmeterClock:Uno_MountHole_3.2mm</footprint>
+      <fields>
+        <field name="Footprint">AmmeterClock:Uno_MountHole_3.2mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="AmmeterClock" part="Clock_MOUNT" description=""/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="ammeter-clock.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>ffc66287-91c7-4075-b545-87805ac71cd9</tstamps>
+    </comp>
+    <comp ref="H2">
+      <value>UNO_3.2mm</value>
+      <footprint>AmmeterClock:Uno_MountHole_3.2mm</footprint>
+      <fields>
+        <field name="Footprint">AmmeterClock:Uno_MountHole_3.2mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="AmmeterClock" part="Clock_MOUNT" description=""/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="ammeter-clock.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>378e41dc-b5cc-461c-9b5a-c836d4f2064b</tstamps>
+    </comp>
+    <comp ref="H3">
+      <value>UNO_3.2mm</value>
+      <footprint>AmmeterClock:Uno_MountHole_3.2mm</footprint>
+      <fields>
+        <field name="Footprint">AmmeterClock:Uno_MountHole_3.2mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="AmmeterClock" part="Clock_MOUNT" description=""/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="ammeter-clock.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>7292a0aa-e40d-42e6-8a99-3be485b07ff0</tstamps>
+    </comp>
+    <comp ref="H4">
+      <value>UNO_3.2mm</value>
+      <footprint>AmmeterClock:Uno_MountHole_3.2mm</footprint>
+      <fields>
+        <field name="Footprint">AmmeterClock:Uno_MountHole_3.2mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="AmmeterClock" part="Clock_MOUNT" description=""/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="ammeter-clock.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>b8588570-288d-4499-883b-87f5047ef4e3</tstamps>
+    </comp>
+    <comp ref="J1">
+      <value>UNO_R3_POWER</value>
+      <footprint>AmmeterClock:Uno_R3_Stackable_1x08</footprint>
+      <fields>
+        <field name="Footprint">AmmeterClock:Uno_R3_Stackable_1x08</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="AmmeterClock" part="Clock_POWER" description=""/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="ammeter-clock.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>9eb9c4d8-18dc-4145-bbec-aa87e3afaed6</tstamps>
+    </comp>
+    <comp ref="J2">
+      <value>HOUR_0-15V</value>
+      <footprint>AmmeterClock:JILN_JL301_2P_P5.00mm</footprint>
+      <fields>
+        <field name="Footprint">AmmeterClock:JILN_JL301_2P_P5.00mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="AmmeterClock" part="Clock_POLAR" description=""/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="ammeter-clock.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>b0b76532-5a23-453e-80bb-11fe0fe42e10</tstamps>
+    </comp>
+    <comp ref="J3">
+      <value>MINUTE_100uA</value>
+      <footprint>AmmeterClock:JILN_JL301_2P_P5.00mm</footprint>
+      <fields>
+        <field name="Footprint">AmmeterClock:JILN_JL301_2P_P5.00mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="AmmeterClock" part="Clock_POLAR" description=""/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="ammeter-clock.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>9c63b000-49fc-420f-a138-92aeff776fb9</tstamps>
+    </comp>
+    <comp ref="J4">
+      <value>HOUR_EXT_BUTTON</value>
+      <footprint>AmmeterClock:JILN_JL301_2P_P5.00mm</footprint>
+      <fields>
+        <field name="Footprint">AmmeterClock:JILN_JL301_2P_P5.00mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="AmmeterClock" part="Clock_PAIR" description=""/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="ammeter-clock.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>e3cdfafe-94b8-4a37-9a96-13a16f0835d7</tstamps>
+    </comp>
+    <comp ref="J5">
+      <value>MIN_EXT_BUTTON</value>
+      <footprint>AmmeterClock:JILN_JL301_2P_P5.00mm</footprint>
+      <fields>
+        <field name="Footprint">AmmeterClock:JILN_JL301_2P_P5.00mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="AmmeterClock" part="Clock_PAIR" description=""/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="ammeter-clock.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>c768afc0-418d-4e69-8e99-2b51bd16f83a</tstamps>
+    </comp>
+    <comp ref="J6">
+      <value>RTC_I2C_OPTION</value>
+      <footprint>Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical</footprint>
+      <fields>
+        <field name="Footprint">Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="AmmeterClock" part="Clock_HEADER4" description=""/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="ammeter-clock.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>860ec2da-f638-4f10-bf46-6455ed81d765</tstamps>
+    </comp>
+    <comp ref="J7">
+      <value>UNO_R3_ANALOG</value>
+      <footprint>AmmeterClock:Uno_R3_Stackable_1x06</footprint>
+      <fields>
+        <field name="Footprint">AmmeterClock:Uno_R3_Stackable_1x06</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="AmmeterClock" part="Clock_ANALOG" description=""/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="ammeter-clock.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>1192c87e-b728-4a37-90a5-97dbe20fc3cc</tstamps>
+    </comp>
+    <comp ref="J8">
+      <value>UNO_R3_D0_D7</value>
+      <footprint>AmmeterClock:Uno_R3_Stackable_1x08</footprint>
+      <fields>
+        <field name="Footprint">AmmeterClock:Uno_R3_Stackable_1x08</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="AmmeterClock" part="Clock_D0_7" description=""/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="ammeter-clock.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>294bceca-e85f-46ce-8ac6-aefd166cd4f1</tstamps>
+    </comp>
+    <comp ref="J9">
+      <value>UNO_R3_D8_SCL</value>
+      <footprint>AmmeterClock:Uno_R3_Stackable_1x10</footprint>
+      <fields>
+        <field name="Footprint">AmmeterClock:Uno_R3_Stackable_1x10</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="AmmeterClock" part="Clock_D8_SCL" description=""/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="ammeter-clock.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>460c8280-1561-438b-8471-b91b8fc7a155</tstamps>
+    </comp>
+    <comp ref="J10">
+      <value>SECOND_100uA</value>
+      <footprint>AmmeterClock:JILN_JL301_2P_P5.00mm</footprint>
+      <fields>
+        <field name="Footprint">AmmeterClock:JILN_JL301_2P_P5.00mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="AmmeterClock" part="Clock_POLAR" description=""/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="ammeter-clock.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>7be8677b-c8cc-43c5-a46a-e0d15bcfb335</tstamps>
+    </comp>
+    <comp ref="R1">
+      <value>22k 0.1%</value>
+      <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_0805_2012Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="AmmeterClock" part="Clock_PAIR" description=""/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="ammeter-clock.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>cd526950-538f-4b25-9cd0-cba35dabdd15</tstamps>
+    </comp>
+    <comp ref="R2">
+      <value>10k 0.1%</value>
+      <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_0805_2012Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="AmmeterClock" part="Clock_PAIR" description=""/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="ammeter-clock.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>5834fa08-1089-4c5e-95f3-6e9e03d15c30</tstamps>
+    </comp>
+    <comp ref="R3">
+      <value>56k 1%</value>
+      <footprint>Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal</footprint>
+      <fields>
+        <field name="Footprint">Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="AmmeterClock" part="Clock_PAIR" description=""/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="ammeter-clock.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>a1305cf3-47b5-403c-aa9b-f4dac75347a5</tstamps>
+    </comp>
+    <comp ref="R4">
+      <value>4.7k</value>
+      <footprint>Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal</footprint>
+      <fields>
+        <field name="Footprint">Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="AmmeterClock" part="Clock_PAIR" description=""/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="ammeter-clock.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>896a2c93-8aaa-4f1b-9c1f-0f3940a834c5</tstamps>
+    </comp>
+    <comp ref="R5">
+      <value>4.7k</value>
+      <footprint>Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal</footprint>
+      <fields>
+        <field name="Footprint">Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="AmmeterClock" part="Clock_PAIR" description=""/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="ammeter-clock.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>b3e91a8e-5673-45bd-a8ab-8f6ad727e02f</tstamps>
+    </comp>
+    <comp ref="R6">
+      <value>47R 1%</value>
+      <footprint>Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal</footprint>
+      <fields>
+        <field name="Footprint">Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="AmmeterClock" part="Clock_PAIR" description=""/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="ammeter-clock.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>d764867a-d898-4ab0-afb3-ba9ff5473c86</tstamps>
+    </comp>
+    <comp ref="R9">
+      <value>4.7k 1%</value>
+      <footprint>Resistor_SMD:R_0805_2012Metric</footprint>
+      <fields>
+        <field name="Footprint">Resistor_SMD:R_0805_2012Metric</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="AmmeterClock" part="Clock_PAIR" description=""/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="ammeter-clock.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>21aff5cf-0d77-4143-ad62-c38eb53a8d4a</tstamps>
+    </comp>
+    <comp ref="R10">
+      <value>56k 1%</value>
+      <footprint>Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal</footprint>
+      <fields>
+        <field name="Footprint">Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="AmmeterClock" part="Clock_PAIR" description=""/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="ammeter-clock.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>8d4bfff1-1a74-4a95-a2d1-1a16c75f131a</tstamps>
+    </comp>
+    <comp ref="SW1">
+      <value>HOUR_SET_NO</value>
+      <footprint>Button_Switch_THT:SW_PUSH_6mm</footprint>
+      <fields>
+        <field name="Footprint">Button_Switch_THT:SW_PUSH_6mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="AmmeterClock" part="Clock_PAIR" description=""/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="ammeter-clock.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>7bdea7dc-fd1e-4be0-9da5-594f709b17e1</tstamps>
+    </comp>
+    <comp ref="SW2">
+      <value>MIN_SET_NO</value>
+      <footprint>Button_Switch_THT:SW_PUSH_6mm</footprint>
+      <fields>
+        <field name="Footprint">Button_Switch_THT:SW_PUSH_6mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="AmmeterClock" part="Clock_PAIR" description=""/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="ammeter-clock.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>84e51f95-ab49-40e3-9d6c-5a17ec479496</tstamps>
+    </comp>
+    <comp ref="U1">
+      <value>MCP4728-E/UN</value>
+      <footprint>Package_SO:MSOP-10_3x3mm_P0.5mm</footprint>
+      <fields>
+        <field name="Footprint">Package_SO:MSOP-10_3x3mm_P0.5mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="AmmeterClock" part="Clock_DAC" description=""/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="ammeter-clock.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>16cf5edc-bf96-4b5d-996e-d547abbb8c84</tstamps>
+    </comp>
+    <comp ref="U3">
+      <value>OPA197ID</value>
+      <footprint>Package_SO:SOIC-8_3.9x4.9mm_P1.27mm</footprint>
+      <fields>
+        <field name="Footprint">Package_SO:SOIC-8_3.9x4.9mm_P1.27mm</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="AmmeterClock" part="Clock_AMP" description=""/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="ammeter-clock.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>95e9415e-e5c8-4589-b86c-2af1b64e5f71</tstamps>
+    </comp>
+    <comp ref="U4">
+      <value>Pololu_U3V16F15</value>
+      <footprint>AmmeterClock:Pololu_U3V16F15_Socket</footprint>
+      <fields>
+        <field name="Footprint">AmmeterClock:Pololu_U3V16F15_Socket</field>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <libsource lib="AmmeterClock" part="Clock_BOOST" description=""/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="ammeter-clock.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>41f531c8-7b21-4f0d-94bd-7656390f3e79</tstamps>
+    </comp>
+  </components>
+  <libparts>
+    <libpart lib="AmmeterClock" part="Clock_AMP">
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">Clock_AMP</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <pins>
+        <pin num="1" name="NC" type="passive"/>
+        <pin num="2" name="IN-" type="input"/>
+        <pin num="3" name="IN+" type="input"/>
+        <pin num="4" name="V-" type="power_in"/>
+        <pin num="5" name="NC" type="passive"/>
+        <pin num="6" name="OUT" type="output"/>
+        <pin num="7" name="V+" type="power_in"/>
+        <pin num="8" name="NC" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="AmmeterClock" part="Clock_ANALOG">
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">Clock_ANALOG</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <pins>
+        <pin num="1" name="A0" type="passive"/>
+        <pin num="2" name="A1" type="passive"/>
+        <pin num="3" name="A2" type="passive"/>
+        <pin num="4" name="A3" type="passive"/>
+        <pin num="5" name="A4_SDA" type="bidirectional"/>
+        <pin num="6" name="A5_SCL" type="output"/>
+      </pins>
+    </libpart>
+    <libpart lib="AmmeterClock" part="Clock_BOOST">
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">Clock_BOOST</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <pins>
+        <pin num="1" name="VIN_5V" type="power_in"/>
+        <pin num="2" name="GND" type="power_in"/>
+        <pin num="3" name="VOUT_15V" type="power_out"/>
+      </pins>
+    </libpart>
+    <libpart lib="AmmeterClock" part="Clock_D0_7">
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">Clock_D0_7</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <pins>
+        <pin num="1" name="D0" type="passive"/>
+        <pin num="2" name="D1" type="passive"/>
+        <pin num="3" name="D2_HOUR" type="input"/>
+        <pin num="4" name="D3_MIN" type="input"/>
+        <pin num="5" name="D4" type="passive"/>
+        <pin num="6" name="D5" type="passive"/>
+        <pin num="7" name="D6" type="passive"/>
+        <pin num="8" name="D7" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="AmmeterClock" part="Clock_D8_SCL">
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">Clock_D8_SCL</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <pins>
+        <pin num="1" name="D8" type="passive"/>
+        <pin num="2" name="D9" type="passive"/>
+        <pin num="3" name="D10" type="passive"/>
+        <pin num="4" name="D11" type="passive"/>
+        <pin num="5" name="D12" type="passive"/>
+        <pin num="6" name="D13" type="passive"/>
+        <pin num="7" name="GND" type="passive"/>
+        <pin num="8" name="AREF" type="passive"/>
+        <pin num="9" name="SDA" type="passive"/>
+        <pin num="10" name="SCL" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="AmmeterClock" part="Clock_DAC">
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">Clock_DAC</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <pins>
+        <pin num="1" name="VDD" type="power_in"/>
+        <pin num="2" name="SCL" type="input"/>
+        <pin num="3" name="SDA" type="bidirectional"/>
+        <pin num="4" name="LDAC" type="input"/>
+        <pin num="5" name="RDY/BSY" type="output"/>
+        <pin num="6" name="VOUT_A" type="output"/>
+        <pin num="7" name="VOUT_B" type="output"/>
+        <pin num="8" name="VOUT_C" type="output"/>
+        <pin num="9" name="VOUT_D" type="output"/>
+        <pin num="10" name="VSS" type="power_in"/>
+      </pins>
+    </libpart>
+    <libpart lib="AmmeterClock" part="Clock_HEADER4">
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">Clock_HEADER4</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <pins>
+        <pin num="1" name="5V" type="passive"/>
+        <pin num="2" name="GND" type="passive"/>
+        <pin num="3" name="SDA" type="passive"/>
+        <pin num="4" name="SCL" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="AmmeterClock" part="Clock_MOUNT">
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">Clock_MOUNT</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+    </libpart>
+    <libpart lib="AmmeterClock" part="Clock_PAIR">
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">Clock_PAIR</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="passive"/>
+        <pin num="2" name="2" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="AmmeterClock" part="Clock_POLAR">
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">Clock_POLAR</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <pins>
+        <pin num="1" name="+" type="passive"/>
+        <pin num="2" name="-" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="AmmeterClock" part="Clock_POWER">
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">Clock_POWER</field>
+        <field name="Footprint"/>
+        <field name="Datasheet"/>
+        <field name="Description"/>
+      </fields>
+      <pins>
+        <pin num="1" name="RESERVED" type="passive"/>
+        <pin num="2" name="IOREF" type="passive"/>
+        <pin num="3" name="RESET" type="passive"/>
+        <pin num="4" name="3V3" type="passive"/>
+        <pin num="5" name="5V" type="power_out"/>
+        <pin num="6" name="GND" type="power_out"/>
+        <pin num="7" name="GND" type="passive"/>
+        <pin num="8" name="VIN" type="passive"/>
+      </pins>
+    </libpart>
+  </libparts>
+  <libraries>
+    <library logical="AmmeterClock">
+      <uri>/Users/ben/Desktop/technical/ammeter-clock/hardware/rev2/ammeter-clock/AmmeterClock.kicad_sym</uri>
+    </library>
+  </libraries>
+  <nets>
+    <net code="1" name="/+5V">
+      <node ref="C1" pin="1" pinfunction="1" pintype="passive"/>
+      <node ref="C5" pin="1" pinfunction="+" pintype="passive"/>
+      <node ref="J1" pin="5" pinfunction="5V" pintype="power_out"/>
+      <node ref="J6" pin="1" pinfunction="5V" pintype="passive"/>
+      <node ref="R4" pin="1" pinfunction="1" pintype="passive"/>
+      <node ref="R5" pin="1" pinfunction="1" pintype="passive"/>
+      <node ref="U1" pin="1" pinfunction="VDD" pintype="power_in"/>
+      <node ref="U4" pin="1" pinfunction="VIN_5V" pintype="power_in"/>
+    </net>
+    <net code="2" name="/+15V">
+      <node ref="C3" pin="1" pinfunction="1" pintype="passive"/>
+      <node ref="C4" pin="1" pinfunction="+" pintype="passive"/>
+      <node ref="U3" pin="7" pinfunction="V+" pintype="power_in"/>
+      <node ref="U4" pin="3" pinfunction="VOUT_15V" pintype="power_out"/>
+    </net>
+    <net code="3" name="/AMP_DRIVE">
+      <node ref="C6" pin="1" pinfunction="1" pintype="passive"/>
+      <node ref="R6" pin="1" pinfunction="1" pintype="passive"/>
+      <node ref="U3" pin="6" pinfunction="OUT" pintype="output"/>
+    </net>
+    <net code="4" name="/BTN_H">
+      <node ref="J4" pin="1" pinfunction="1" pintype="passive"/>
+      <node ref="J8" pin="3" pinfunction="D2_HOUR" pintype="input"/>
+      <node ref="SW1" pin="1" pinfunction="1" pintype="passive"/>
+    </net>
+    <net code="5" name="/BTN_M">
+      <node ref="J5" pin="1" pinfunction="1" pintype="passive"/>
+      <node ref="J8" pin="4" pinfunction="D3_MIN" pintype="input"/>
+      <node ref="SW2" pin="1" pinfunction="1" pintype="passive"/>
+    </net>
+    <net code="6" name="/GND">
+      <node ref="C1" pin="2" pinfunction="2" pintype="passive"/>
+      <node ref="C3" pin="2" pinfunction="2" pintype="passive"/>
+      <node ref="C4" pin="2" pinfunction="-" pintype="passive"/>
+      <node ref="C5" pin="2" pinfunction="-" pintype="passive"/>
+      <node ref="J1" pin="6" pinfunction="GND" pintype="power_out"/>
+      <node ref="J1" pin="7" pinfunction="GND" pintype="passive"/>
+      <node ref="J10" pin="2" pinfunction="-" pintype="passive"/>
+      <node ref="J2" pin="2" pinfunction="-" pintype="passive"/>
+      <node ref="J3" pin="2" pinfunction="-" pintype="passive"/>
+      <node ref="J4" pin="2" pinfunction="2" pintype="passive"/>
+      <node ref="J5" pin="2" pinfunction="2" pintype="passive"/>
+      <node ref="J6" pin="2" pinfunction="GND" pintype="passive"/>
+      <node ref="J9" pin="7" pinfunction="GND" pintype="passive"/>
+      <node ref="R2" pin="2" pinfunction="2" pintype="passive"/>
+      <node ref="SW1" pin="2" pinfunction="2" pintype="passive"/>
+      <node ref="SW2" pin="2" pinfunction="2" pintype="passive"/>
+      <node ref="U1" pin="10" pinfunction="VSS" pintype="power_in"/>
+      <node ref="U1" pin="4" pinfunction="LDAC" pintype="input"/>
+      <node ref="U3" pin="4" pinfunction="V-" pintype="power_in"/>
+      <node ref="U4" pin="2" pinfunction="GND" pintype="power_in"/>
+    </net>
+    <net code="7" name="/HOUR_AMP_IN">
+      <node ref="R9" pin="2" pinfunction="2" pintype="passive"/>
+      <node ref="U3" pin="3" pinfunction="IN+" pintype="input"/>
+    </net>
+    <net code="8" name="/HOUR_DAC">
+      <node ref="R9" pin="1" pinfunction="1" pintype="passive"/>
+      <node ref="U1" pin="9" pinfunction="VOUT_D" pintype="output"/>
+    </net>
+    <net code="9" name="/HOUR_FB">
+      <node ref="C6" pin="2" pinfunction="2" pintype="passive"/>
+      <node ref="R1" pin="2" pinfunction="2" pintype="passive"/>
+      <node ref="R2" pin="1" pinfunction="1" pintype="passive"/>
+      <node ref="U3" pin="2" pinfunction="IN-" pintype="input"/>
+    </net>
+    <net code="10" name="/HOUR_OUT">
+      <node ref="J2" pin="1" pinfunction="+" pintype="passive"/>
+      <node ref="R1" pin="1" pinfunction="1" pintype="passive"/>
+      <node ref="R6" pin="2" pinfunction="2" pintype="passive"/>
+    </net>
+    <net code="11" name="/MIN_DAC">
+      <node ref="R3" pin="1" pinfunction="1" pintype="passive"/>
+      <node ref="U1" pin="8" pinfunction="VOUT_C" pintype="output"/>
+    </net>
+    <net code="12" name="/MIN_OUT">
+      <node ref="J3" pin="1" pinfunction="+" pintype="passive"/>
+      <node ref="R3" pin="2" pinfunction="2" pintype="passive"/>
+    </net>
+    <net code="13" name="/SCL">
+      <node ref="J6" pin="4" pinfunction="SCL" pintype="passive"/>
+      <node ref="J7" pin="6" pinfunction="A5_SCL" pintype="output"/>
+      <node ref="J9" pin="10" pinfunction="SCL" pintype="passive"/>
+      <node ref="R5" pin="2" pinfunction="2" pintype="passive"/>
+      <node ref="U1" pin="2" pinfunction="SCL" pintype="input"/>
+    </net>
+    <net code="14" name="/SDA">
+      <node ref="J6" pin="3" pinfunction="SDA" pintype="passive"/>
+      <node ref="J7" pin="5" pinfunction="A4_SDA" pintype="bidirectional"/>
+      <node ref="J9" pin="9" pinfunction="SDA" pintype="passive"/>
+      <node ref="R4" pin="2" pinfunction="2" pintype="passive"/>
+      <node ref="U1" pin="3" pinfunction="SDA" pintype="bidirectional"/>
+    </net>
+    <net code="15" name="/SEC_DAC">
+      <node ref="R10" pin="1" pinfunction="1" pintype="passive"/>
+      <node ref="U1" pin="7" pinfunction="VOUT_B" pintype="output"/>
+    </net>
+    <net code="16" name="/SEC_OUT">
+      <node ref="J10" pin="1" pinfunction="+" pintype="passive"/>
+      <node ref="R10" pin="2" pinfunction="2" pintype="passive"/>
+    </net>
+    <net code="17" name="unconnected-(J1-3V3-Pad4)">
+      <node ref="J1" pin="4" pinfunction="3V3" pintype="passive+no_connect"/>
+    </net>
+    <net code="18" name="unconnected-(J1-IOREF-Pad2)">
+      <node ref="J1" pin="2" pinfunction="IOREF" pintype="passive+no_connect"/>
+    </net>
+    <net code="19" name="unconnected-(J1-RESERVED-Pad1)">
+      <node ref="J1" pin="1" pinfunction="RESERVED" pintype="passive+no_connect"/>
+    </net>
+    <net code="20" name="unconnected-(J1-RESET-Pad3)">
+      <node ref="J1" pin="3" pinfunction="RESET" pintype="passive+no_connect"/>
+    </net>
+    <net code="21" name="unconnected-(J1-VIN-Pad8)">
+      <node ref="J1" pin="8" pinfunction="VIN" pintype="passive+no_connect"/>
+    </net>
+    <net code="22" name="unconnected-(J7-A0-Pad1)">
+      <node ref="J7" pin="1" pinfunction="A0" pintype="passive+no_connect"/>
+    </net>
+    <net code="23" name="unconnected-(J7-A1-Pad2)">
+      <node ref="J7" pin="2" pinfunction="A1" pintype="passive+no_connect"/>
+    </net>
+    <net code="24" name="unconnected-(J7-A2-Pad3)">
+      <node ref="J7" pin="3" pinfunction="A2" pintype="passive+no_connect"/>
+    </net>
+    <net code="25" name="unconnected-(J7-A3-Pad4)">
+      <node ref="J7" pin="4" pinfunction="A3" pintype="passive+no_connect"/>
+    </net>
+    <net code="26" name="unconnected-(J8-D0-Pad1)">
+      <node ref="J8" pin="1" pinfunction="D0" pintype="passive+no_connect"/>
+    </net>
+    <net code="27" name="unconnected-(J8-D1-Pad2)">
+      <node ref="J8" pin="2" pinfunction="D1" pintype="passive+no_connect"/>
+    </net>
+    <net code="28" name="unconnected-(J8-D4-Pad5)">
+      <node ref="J8" pin="5" pinfunction="D4" pintype="passive+no_connect"/>
+    </net>
+    <net code="29" name="unconnected-(J8-D5-Pad6)">
+      <node ref="J8" pin="6" pinfunction="D5" pintype="passive+no_connect"/>
+    </net>
+    <net code="30" name="unconnected-(J8-D6-Pad7)">
+      <node ref="J8" pin="7" pinfunction="D6" pintype="passive+no_connect"/>
+    </net>
+    <net code="31" name="unconnected-(J8-D7-Pad8)">
+      <node ref="J8" pin="8" pinfunction="D7" pintype="passive+no_connect"/>
+    </net>
+    <net code="32" name="unconnected-(J9-AREF-Pad8)">
+      <node ref="J9" pin="8" pinfunction="AREF" pintype="passive+no_connect"/>
+    </net>
+    <net code="33" name="unconnected-(J9-D8-Pad1)">
+      <node ref="J9" pin="1" pinfunction="D8" pintype="passive+no_connect"/>
+    </net>
+    <net code="34" name="unconnected-(J9-D9-Pad2)">
+      <node ref="J9" pin="2" pinfunction="D9" pintype="passive+no_connect"/>
+    </net>
+    <net code="35" name="unconnected-(J9-D10-Pad3)">
+      <node ref="J9" pin="3" pinfunction="D10" pintype="passive+no_connect"/>
+    </net>
+    <net code="36" name="unconnected-(J9-D11-Pad4)">
+      <node ref="J9" pin="4" pinfunction="D11" pintype="passive+no_connect"/>
+    </net>
+    <net code="37" name="unconnected-(J9-D12-Pad5)">
+      <node ref="J9" pin="5" pinfunction="D12" pintype="passive+no_connect"/>
+    </net>
+    <net code="38" name="unconnected-(J9-D13-Pad6)">
+      <node ref="J9" pin="6" pinfunction="D13" pintype="passive+no_connect"/>
+    </net>
+    <net code="39" name="unconnected-(U1-RDY{slash}BSY-Pad5)">
+      <node ref="U1" pin="5" pinfunction="RDY/BSY" pintype="output+no_connect"/>
+    </net>
+    <net code="40" name="unconnected-(U1-VOUT_A-Pad6)">
+      <node ref="U1" pin="6" pinfunction="VOUT_A" pintype="output+no_connect"/>
+    </net>
+    <net code="41" name="unconnected-(U3-NC-Pad1)">
+      <node ref="U3" pin="1" pinfunction="NC" pintype="passive+no_connect"/>
+    </net>
+    <net code="42" name="unconnected-(U3-NC-Pad5)">
+      <node ref="U3" pin="5" pinfunction="NC" pintype="passive+no_connect"/>
+    </net>
+    <net code="43" name="unconnected-(U3-NC-Pad8)">
+      <node ref="U3" pin="8" pinfunction="NC" pintype="passive+no_connect"/>
+    </net>
+  </nets>
+</export>

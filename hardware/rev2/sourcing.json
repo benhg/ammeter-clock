@@ -1,0 +1,327 @@
+{
+  "checked_date": "2026-10-18",
+  "scope": "Exact MPNs and catalogue-ID mappings, not a reserved-stock or vendor-approved assembly BOM",
+  "parts": {
+    "C1": {
+      "manufacturer": "FH (Guangdong Fenghua Advanced Tech)",
+      "mpn": "CT4-0805B104K500F3",
+      "lcsc": "C84772",
+      "source": "https://jlcpcb.com/partdetail/C84772",
+      "status": "JLC public stock verified 2026-10-18; enough observed availability for five boards; not reserved; vendor placement acceptance pending",
+      "notes": "100nF50V X7R+/-10%,LEADED not SMT despite0805 in MPN.5.08mm leadpitch,max4.2x3.8x3.8mm body,0.50+/-0.10mm leads. Custom footprint1.0mm holes accommodates lead tolerances; nominal value unchanged.",
+      "observed_jlc_stock": 70750,
+      "observed_jlc_available": 69920,
+      "observed_jlc_unit_price_1": 0.0394
+    },
+    "C3": {
+      "manufacturer": "FH (Guangdong Fenghua Advanced Tech)",
+      "mpn": "CT4-0805B104K500F3",
+      "lcsc": "C84772",
+      "source": "https://jlcpcb.com/partdetail/C84772",
+      "status": "JLC public stock verified 2026-10-18; enough observed availability for five boards; not reserved; vendor placement acceptance pending",
+      "notes": "100nF50V X7R+/-10%,LEADED not SMT despite0805 in MPN.5.08mm leadpitch,max4.2x3.8x3.8mm body,0.50+/-0.10mm leads. Custom footprint1.0mm holes accommodates lead tolerances; nominal value unchanged.",
+      "observed_jlc_stock": 70750,
+      "observed_jlc_available": 69920,
+      "observed_jlc_unit_price_1": 0.0394
+    },
+    "C4": {
+      "manufacturer": "Lelon",
+      "mpn": "RXW100M1EBK-0511",
+      "lcsc": "C231206",
+      "source": "https://jlcpcb.com/partdetail/C231206",
+      "status": "JLC public stock verified 2026-10-18; enough observed availability for five boards; not reserved; vendor placement acceptance pending",
+      "notes": "10uF +/-20%, 25V, D5xL11mm, 2mm pitch, 105C rated. Same capacitance/rating/XY footprint; height increases to 11mm. Positive to pad 1.",
+      "observed_jlc_stock": 1006,
+      "observed_jlc_available": 1005,
+      "observed_jlc_unit_price_1": 0.0543
+    },
+    "C5": {
+      "manufacturer": "Rubycon",
+      "mpn": "50YXM33MEFR6.3X11",
+      "lcsc": "C432346",
+      "source": "https://jlcpcb.com/partdetail/C432346",
+      "status": "JLC public stock verified 2026-10-18; enough observed availability for five boards; not reserved; vendor placement acceptance pending",
+      "notes": "33uF +/-20%, 50V, D6.3xL11mm, 2.5mm pitch. Rev F3 larger footprint and small position shift. Value remains 33uF on 5V rail; positive to pad 1.",
+      "observed_jlc_stock": 554,
+      "observed_jlc_available": 553,
+      "observed_jlc_unit_price_1": 0.0716
+    },
+    "C6": {
+      "manufacturer": "Samsung Electro-Mechanics",
+      "mpn": "CL21C102JBCNNNC",
+      "lcsc": "C1791",
+      "source": "https://jlcpcb.com/partdetail/C1791",
+      "status": "JLC public stock verified 2026-10-18; enough observed availability for five boards; not reserved; vendor placement acceptance pending",
+      "notes": "1nF50V C0G+/-5%,0805 SMT. Same feedback compensation value/dielectric/tolerance; F4 local reroute. Check JLC basic-part pricing in live quote.",
+      "observed_jlc_stock": 160536,
+      "observed_jlc_available": 148003,
+      "observed_jlc_unit_price_1": 0.0113
+    },
+    "R1": {
+      "manufacturer": "RESI",
+      "mpn": "PTFR0805B22K0N9",
+      "lcsc": "C351592",
+      "source": "https://jlcpcb.com/partdetail/C351592",
+      "status": "JLC public stock verified 2026-10-18; enough observed availability for five boards; not reserved; vendor placement acceptance pending",
+      "notes": "22kohm +/-0.1%, 10ppm/C, 130mW, 0805. Rev F3 SMT footprint; nominal gain unchanged. At 12V hour output dissipates about 3.1mW.",
+      "observed_jlc_stock": 10332,
+      "observed_jlc_available": 10269,
+      "observed_jlc_unit_price_1": 0.1932
+    },
+    "R2": {
+      "manufacturer": "RESI",
+      "mpn": "PTFR0805B10K0N9",
+      "lcsc": "C328436",
+      "source": "https://jlcpcb.com/partdetail/C328436",
+      "status": "JLC public stock verified 2026-10-18; enough observed availability for five boards; not reserved; vendor placement acceptance pending",
+      "notes": "10kohm+/-0.1%,10ppm/C,130mW,0805 SMT; gain unchanged. Dissipation at3.75Vfeedback approximately1.4mW. Replaces precision axial resistor; F4 local reroute.",
+      "observed_jlc_stock": 200981,
+      "observed_jlc_available": 199692,
+      "observed_jlc_unit_price_1": 0.1824
+    },
+    "R3": {
+      "manufacturer": "Yageo",
+      "mpn": "MFR50SFTE52-56K",
+      "lcsc": "C1373212",
+      "source": "https://www.lcsc.com/product-detail/C1373212.html",
+      "status": "JLC public stock verified 2026-10-18; enough observed availability for five boards; not reserved; vendor placement acceptance pending",
+      "notes": "56k 1%; axial body 6.3x2.4mm; 7.62mm formed lead pitch.",
+      "observed_jlc_stock": 4480,
+      "observed_jlc_available": 4465,
+      "observed_jlc_unit_price_1": 0.0221
+    },
+    "R4": {
+      "manufacturer": "YAGEO",
+      "mpn": "MFR-25FTE52-4K7",
+      "lcsc": "C173023",
+      "source": "https://jlcpcb.com/partdetail/C173023",
+      "status": "JLC public stock verified 2026-10-18; enough observed availability for five boards; not reserved; vendor placement acceptance pending",
+      "notes": "4.7kohm +/-1%, 250mW, axial D2.4xL6.3mm, form to 7.62mm pitch. Same pull-up function and footprint.",
+      "observed_jlc_stock": 296268,
+      "observed_jlc_available": 291919,
+      "observed_jlc_unit_price_1": 0.0157
+    },
+    "R5": {
+      "manufacturer": "YAGEO",
+      "mpn": "MFR-25FTE52-4K7",
+      "lcsc": "C173023",
+      "source": "https://jlcpcb.com/partdetail/C173023",
+      "status": "JLC public stock verified 2026-10-18; enough observed availability for five boards; not reserved; vendor placement acceptance pending",
+      "notes": "4.7kohm +/-1%, 250mW, axial D2.4xL6.3mm, form to 7.62mm pitch. Same pull-up function and footprint.",
+      "observed_jlc_stock": 296268,
+      "observed_jlc_available": 291919,
+      "observed_jlc_unit_price_1": 0.0157
+    },
+    "R6": {
+      "manufacturer": "Yageo",
+      "mpn": "MFR-25FTF52-47R",
+      "lcsc": "C1371928",
+      "source": "https://www.lcsc.com/product-detail/C1371928.html",
+      "status": "JLC public stock verified 2026-10-18; enough observed availability for five boards; not reserved; vendor placement acceptance pending",
+      "notes": "47 ohms 1%; axial body 6.3x2.4mm; 7.62mm formed lead pitch.",
+      "observed_jlc_stock": 1365,
+      "observed_jlc_available": 1362,
+      "observed_jlc_unit_price_1": 0.0134
+    },
+    "J2": {
+      "manufacturer": "JILN",
+      "mpn": "JL301-50002U02",
+      "lcsc": "C395214",
+      "source": "https://jlcpcb.com/partdetail/C395214",
+      "status": "JLC public stock verified 2026-10-18; enough observed availability for five boards; not reserved; vendor placement acceptance pending",
+      "notes": "Two-position5.00mm-pitch screw terminal; body10x7.6x10.1mm,0.9mm leads,3.5mm tails. Custom footprint based on manufacturer drawing, wire entry toward +localY.15A/300V greatly exceeds meter/button loads. Blue housing.1.3mm drills.",
+      "observed_jlc_stock": 2318,
+      "observed_jlc_available": 2179,
+      "observed_jlc_unit_price_1": 0.1045
+    },
+    "J3": {
+      "manufacturer": "JILN",
+      "mpn": "JL301-50002U02",
+      "lcsc": "C395214",
+      "source": "https://jlcpcb.com/partdetail/C395214",
+      "status": "JLC public stock verified 2026-10-18; enough observed availability for five boards; not reserved; vendor placement acceptance pending",
+      "notes": "Two-position5.00mm-pitch screw terminal; body10x7.6x10.1mm,0.9mm leads,3.5mm tails. Custom footprint based on manufacturer drawing, wire entry toward +localY.15A/300V greatly exceeds meter/button loads. Blue housing.1.3mm drills.",
+      "observed_jlc_stock": 2318,
+      "observed_jlc_available": 2179,
+      "observed_jlc_unit_price_1": 0.1045
+    },
+    "J4": {
+      "manufacturer": "JILN",
+      "mpn": "JL301-50002U02",
+      "lcsc": "C395214",
+      "source": "https://jlcpcb.com/partdetail/C395214",
+      "status": "JLC public stock verified 2026-10-18; enough observed availability for five boards; not reserved; vendor placement acceptance pending",
+      "notes": "Two-position5.00mm-pitch screw terminal; body10x7.6x10.1mm,0.9mm leads,3.5mm tails. Custom footprint based on manufacturer drawing, wire entry toward +localY.15A/300V greatly exceeds meter/button loads. Blue housing.1.3mm drills.",
+      "observed_jlc_stock": 2318,
+      "observed_jlc_available": 2179,
+      "observed_jlc_unit_price_1": 0.1045
+    },
+    "J5": {
+      "manufacturer": "JILN",
+      "mpn": "JL301-50002U02",
+      "lcsc": "C395214",
+      "source": "https://jlcpcb.com/partdetail/C395214",
+      "status": "JLC public stock verified 2026-10-18; enough observed availability for five boards; not reserved; vendor placement acceptance pending",
+      "notes": "Two-position5.00mm-pitch screw terminal; body10x7.6x10.1mm,0.9mm leads,3.5mm tails. Custom footprint based on manufacturer drawing, wire entry toward +localY.15A/300V greatly exceeds meter/button loads. Blue housing.1.3mm drills.",
+      "observed_jlc_stock": 2318,
+      "observed_jlc_available": 2179,
+      "observed_jlc_unit_price_1": 0.1045
+    },
+    "J6": {
+      "manufacturer": "Connfly",
+      "mpn": "DS1021-1x4SF11-B",
+      "lcsc": "C7430360",
+      "source": "https://www.lcsc.com/product-detail/C7430360.html",
+      "status": "JLC public stock verified 2026-10-18; enough observed availability for five boards; not reserved; vendor placement acceptance pending",
+      "notes": "Straight through-hole 1x4 male header, 2.54mm pitch. RTC header populated; external RTC module not supplied.",
+      "observed_jlc_stock": 31248,
+      "observed_jlc_available": 31075,
+      "observed_jlc_unit_price_1": 0.0262
+    },
+    "SW1": {
+      "manufacturer": "SOFNG",
+      "mpn": "TS-1102-5516",
+      "lcsc": "C183624",
+      "source": "https://jlcpcb.com/partdetail/C183624",
+      "status": "JLC public stock verified 2026-10-18; enough observed availability for five boards; not reserved; vendor placement acceptance pending",
+      "notes": "6x6mm normally-open switch; 6.5x4.5mm pin grid; top pair common and bottom pair common, matching PCB. 5.5mm actuator height replaces previous 13mm; 1.6N force. Still parallel to external screw terminals.",
+      "observed_jlc_stock": 61,
+      "observed_jlc_available": 60,
+      "observed_jlc_unit_price_1": 0.045
+    },
+    "SW2": {
+      "manufacturer": "SOFNG",
+      "mpn": "TS-1102-5516",
+      "lcsc": "C183624",
+      "source": "https://jlcpcb.com/partdetail/C183624",
+      "status": "JLC public stock verified 2026-10-18; enough observed availability for five boards; not reserved; vendor placement acceptance pending",
+      "notes": "6x6mm normally-open switch; 6.5x4.5mm pin grid; top pair common and bottom pair common, matching PCB. 5.5mm actuator height replaces previous 13mm; 1.6N force. Still parallel to external screw terminals.",
+      "observed_jlc_stock": 61,
+      "observed_jlc_available": 60,
+      "observed_jlc_unit_price_1": 0.045
+    },
+    "U1": {
+      "manufacturer": "Microchip",
+      "mpn": "MCP4728-E/UN",
+      "lcsc": "C108207",
+      "source": "https://jlcpcb.com/partdetail/MicrochipTech-MCP4728_EUN/C108207",
+      "status": "JLC public stock verified 2026-10-18; enough observed availability for five boards; not reserved; vendor placement acceptance pending",
+      "notes": "MSOP-10, exact DAC family/package.",
+      "observed_jlc_stock": 6436,
+      "observed_jlc_available": 6032,
+      "observed_jlc_unit_price_1": 2.3202
+    },
+    "U3": {
+      "manufacturer": "Texas Instruments",
+      "mpn": "OPA197IDR",
+      "lcsc": "C79274",
+      "source": "https://jlcpcb.com/partdetail/TexasInstruments-OPA197IDR/C79274",
+      "status": "JLC public stock verified 2026-10-18; enough observed availability for five boards; not reserved; vendor placement acceptance pending",
+      "notes": "SOIC-8. IDR tape/reel packaging equivalent to the designed OPA197ID tube part.",
+      "observed_jlc_stock": 5304,
+      "observed_jlc_available": 5129,
+      "observed_jlc_unit_price_1": 0.743
+    },
+    "U4": {
+      "manufacturer": "Kinghelm",
+      "mpn": "KH-2.54FH-1X3P-H8.5",
+      "lcsc": "C2932670",
+      "source": "https://www.lcsc.com/product-detail/C2932670.html",
+      "status": "JLC public stock verified 2026-10-18; enough observed availability for five boards; not reserved; vendor placement acceptance pending",
+      "notes": "Assembler fits ONLY the 1x3 female socket, 2.54mm pitch, 8.5mm body height. Customer purchases and fits the Pololu U3V16F15 module; it is excluded from PCBA procurement and fitting.",
+      "observed_jlc_stock": 252,
+      "observed_jlc_available": 237,
+      "observed_jlc_unit_price_1": 0.0774
+    },
+    "J1": {
+      "manufacturer": "Samtec",
+      "mpn": "SSQ-108-03-T-S",
+      "lcsc": "C3323936",
+      "source": "https://jlcpcb.com/partdetail/C3323936",
+      "status": "JLC public stock verified 2026-10-18; enough observed availability for five boards; not reserved; vendor placement acceptance pending",
+      "notes": "Same SSQ -03 stackable geometry: 8.51mm body,10mm square tails DOWN,2.54mm pitch,1.1mm drills. Tin contacts replace gold. At check 28 available; five boards need 10. Target12mm host-top/shield-bottom gap; verify real mating/clearance.",
+      "observed_jlc_stock": 28,
+      "observed_jlc_available": 28,
+      "observed_jlc_unit_price_1": 1.2997
+    },
+    "J7": {
+      "manufacturer": "Samtec",
+      "mpn": "SSQ-106-03-G-S",
+      "lcsc": "C3323798",
+      "source": "https://jlcpcb.com/partdetail/C3323798",
+      "status": "JLC public stock verified 2026-10-18; enough observed availability for five boards; not reserved; vendor placement acceptance pending",
+      "notes": "Individual 6-pin single-row vertical strip; 2.54mm pitch, 8.51mm body, 10.00mm square tails DOWN. Retain 1.1mm plated holes. Rev F3 targets 12mm Uno-PCB-top to shield-PCB-bottom gap; verify actual socket engagement and clearance physically. Do not bottom pins against USB/ESP hardware. No SparkFun kit needed.",
+      "observed_jlc_stock": 867,
+      "observed_jlc_available": 830,
+      "observed_jlc_unit_price_1": 1.6671
+    },
+    "J8": {
+      "manufacturer": "Samtec",
+      "mpn": "SSQ-108-03-T-S",
+      "lcsc": "C3323936",
+      "source": "https://jlcpcb.com/partdetail/C3323936",
+      "status": "JLC public stock verified 2026-10-18; enough observed availability for five boards; not reserved; vendor placement acceptance pending",
+      "notes": "Same SSQ -03 stackable geometry: 8.51mm body,10mm square tails DOWN,2.54mm pitch,1.1mm drills. Tin contacts replace gold. At check 28 available; five boards need 10. Target12mm host-top/shield-bottom gap; verify real mating/clearance.",
+      "observed_jlc_stock": 28,
+      "observed_jlc_available": 28,
+      "observed_jlc_unit_price_1": 1.2997
+    },
+    "J9": {
+      "manufacturer": "Samtec",
+      "mpn": "SSQ-110-03-T-S",
+      "lcsc": "C3322872",
+      "source": "https://jlcpcb.com/partdetail/C3322872",
+      "status": "JLC public stock verified 2026-10-18; enough observed availability for five boards; not reserved; vendor placement acceptance pending",
+      "notes": "Individual 10-pin single-row vertical strip; 2.54mm pitch, 8.51mm body, 10.00mm square tails DOWN. Retain 1.1mm plated holes. Rev F3 targets 12mm Uno-PCB-top to shield-PCB-bottom gap; verify actual socket engagement and clearance physically. Do not bottom pins against USB/ESP hardware. No SparkFun kit needed.",
+      "observed_jlc_stock": 67,
+      "observed_jlc_available": 64,
+      "observed_jlc_unit_price_1": 2.4443
+    },
+    "R9": {
+      "manufacturer": "UNI-ROYAL",
+      "mpn": "0805W8F4701T5E",
+      "lcsc": "C17673",
+      "source": "https://www.lcsc.com/product-detail/C17673.html",
+      "status": "JLC public stock verified 2026-10-18; enough observed availability for five boards; not reserved; vendor placement acceptance pending",
+      "notes": "4.7kohm +/-1%, 0805, 125mW. Series DAC-to-amplifier input protection; retain Pololu module.",
+      "observed_jlc_stock": 4125132,
+      "observed_jlc_available": 3323216,
+      "observed_jlc_unit_price_1": 0.005
+    },
+    "R10": {
+      "manufacturer": "Yageo",
+      "mpn": "MFR50SFTE52-56K",
+      "lcsc": "C1373212",
+      "source": "https://www.lcsc.com/product-detail/C1373212.html",
+      "status": "Existing F4 part choice reused; live stock not reverified for Rev2",
+      "notes": "56k 1%; axial body 6.3x2.4mm; 7.62mm formed lead pitch.",
+      "observed_jlc_stock": 4480,
+      "observed_jlc_available": 4465,
+      "observed_jlc_unit_price_1": 0.0221
+    },
+    "J10": {
+      "manufacturer": "JILN",
+      "mpn": "JL301-50002U02",
+      "lcsc": "C395214",
+      "source": "https://jlcpcb.com/partdetail/C395214",
+      "status": "Existing F4 part choice reused; live stock not reverified for Rev2",
+      "notes": "Two-position5.00mm-pitch screw terminal; body10x7.6x10.1mm,0.9mm leads,3.5mm tails. Custom footprint based on manufacturer drawing, wire entry toward +localY.15A/300V greatly exceeds meter/button loads. Blue housing.1.3mm drills.",
+      "observed_jlc_stock": 2318,
+      "observed_jlc_available": 2179,
+      "observed_jlc_unit_price_1": 0.1045
+    }
+  },
+  "supplemental": [
+    {
+      "reference": "U4 module",
+      "manufacturer": "Pololu",
+      "mpn": "U3V16F15",
+      "lcsc": "",
+      "quantity": 1,
+      "source": "https://www.pololu.com/product/4946",
+      "status": "Customer purchased and installed; excluded from assembler BOM/CPL",
+      "notes": "Customer solders the supplied male header to the module and plugs it into the assembler-fitted U4 socket, component side up, with USB disconnected."
+    }
+  ],
+  "revision": "2"
+}

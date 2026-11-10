@@ -1,0 +1,5 @@
+# CSV exports use standard CRLF; preserve the vendor model verbatim.
+*.csv -text whitespace=cr-at-eol
+simulations/models/*.LIB -text -whitespace
+# KiCad emits trailing spaces in SVG markup.
+hardware/rev2/reports/*.svg -whitespace

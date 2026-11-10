@@ -82,6 +82,20 @@ def make_command(data):
         if data.get("operation") not in ("start", "stop"):
             raise ValueError("Choose start or stop")
         return "TEST " + data["operation"].upper()
+    if action == "seconds":
+        if type(data.get("enabled")) is not bool: raise ValueError("enabled must be a boolean")
+        return f"SECONDS {int(data['enabled'])}"
+    if action == "calibration":
+        operation = data.get("operation")
+        if operation == "begin":
+            if type(data.get("seconds")) is not bool: raise ValueError("seconds must be a boolean")
+            return f"CAL BEGIN {int(data['seconds'])}"
+        if operation in ("cancel", "save", "sweep"): return "CAL " + operation.upper()
+        if operation == "target":
+            return f"CAL TARGET {integer(data,'hour',0,12)} {integer(data,'minute',0,60)} {integer(data,'second',0,60)}"
+        if operation == "scale":
+            return f"CAL SCALE {integer(data,'hour',1,4095)} {integer(data,'minute',1,4095)} {integer(data,'second',1,4095)}"
+        raise ValueError("Unknown calibration operation")
     if action == "wifi":
         ssid = credential_hex(data.get("ssid"), 32, empty=False)
         password = data.get("password")
@@ -142,6 +156,7 @@ class Device:
                     return json.loads(line[3:])
                 if line.startswith("ERR "):
                     raise RuntimeError("Clock rejected the request: " + line[4:])
+            self.close()
             raise RuntimeError("No clock reply. Flash the clock firmware, check the USB connection, and reconnect.")
         except (OSError, ValueError) as exc:
             self.close()
@@ -288,7 +303,8 @@ class Handler(BaseHTTPRequestHandler):
         files = {"/":("index.html","text/html; charset=utf-8"),
                  "/app.js":("app.js","text/javascript; charset=utf-8"),
                  "/style.css":("style.css","text/css; charset=utf-8"),
-                 "/web_serial.js":("web_serial.js","text/javascript; charset=utf-8")}
+                 "/web_serial.js":("web_serial.js","text/javascript; charset=utf-8"),
+                 "/calibration.js":("calibration.js","text/javascript; charset=utf-8")}
         if path not in files:
             self.send(404,{"error":"Not found"}); return
         name, content_type = files[path]
@@ -335,7 +351,7 @@ def main():
     parser.add_argument("--self-test",metavar="RESULT_JSON",help=argparse.SUPPRESS)
     args = parser.parse_args()
     if args.self_test:
-        for name in ("index.html","app.js","web_serial.js","style.css"):
+        for name in ("index.html","app.js","web_serial.js","calibration.js","style.css"):
             assert (STATIC/name).is_file(), name
         assert (ROOT/"firmware/AmmeterClock/AmmeterClock.ino").is_file()
         result = run_cli([find_cli(),"version"],capture_output=True,text=True,timeout=30,check=True)

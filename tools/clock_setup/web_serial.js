@@ -84,6 +84,16 @@ class ClockUSB {
       case 'zone':return `ZONE ${number('offset',-720,840)} ${number('dst',0,2)}`;
       case 'scale':return `SCALE ${number('hour',1,4095)} ${number('minute',1,4095)}`;
       case 'output':if(typeof data.enabled!=='boolean')throw new Error('Invalid output setting');return 'OUTPUT '+Number(data.enabled);
+      case 'seconds':if(typeof data.enabled!=='boolean')throw new Error('Invalid seconds setting');return 'SECONDS '+Number(data.enabled);
+      case 'calibration':{
+        switch(data.operation){
+          case 'begin':if(typeof data.seconds!=='boolean')throw new Error('Invalid seconds setting');return 'CAL BEGIN '+Number(data.seconds);
+          case 'save':case 'cancel':case 'sweep':return 'CAL '+data.operation.toUpperCase();
+          case 'target':return `CAL TARGET ${number('hour',0,12)} ${number('minute',0,60)} ${number('second',0,60)}`;
+          case 'scale':return `CAL SCALE ${number('hour',1,4095)} ${number('minute',1,4095)} ${number('second',1,4095)}`;
+          default:throw new Error('Unknown calibration operation');
+        }
+      }
       case 'test':if(!['start','stop'].includes(data.operation))throw new Error('Choose start or stop');return 'TEST '+data.operation.toUpperCase();
       case 'wifi':{
         const password=data.password, length=new TextEncoder().encode(password).length;

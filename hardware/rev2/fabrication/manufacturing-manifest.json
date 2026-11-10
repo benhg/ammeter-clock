@@ -1,0 +1,40 @@
+{
+  "revision": "2",
+  "status": "PROTOTYPE_NOT_BENCH_VALIDATED",
+  "source_board_sha256": "9b31594a265fc11b5bf1a1c8137d1e081516c64183144f119a89f274302ccdb1",
+  "source_schematic_sha256": "02cb1114ffb8756ac3201698043b86eb746bf107872521914f2473bf37d1a3d6",
+  "layers": 2,
+  "board_mm": [
+    68.58,
+    53.34
+  ],
+  "origin_kicad_mm": [
+    50,
+    103.34
+  ],
+  "assembly_counts": {
+    "SMT": 6,
+    "THT": 22,
+    "total": 28,
+    "side": "top"
+  },
+  "stock": "Not reverified",
+  "files": {
+    "ammeter-clock-rev2-B_Cu.gbl": "a9d4f38111ae9e71f47f63240d22116836a7aaf340a1c41ee84833cb85ab797f",
+    "ammeter-clock-rev2-B_Mask.gbs": "6519e7503cd500fb95a6d2a14decc1f3f59e4599fa5e245609e340ff2bb6b8c2",
+    "ammeter-clock-rev2-B_Paste.gbp": "106f0ff1525b7b37228577a9aa9482e342060ec87a37bcb80aa146de5a873d14",
+    "ammeter-clock-rev2-B_Silkscreen.gbo": "e54089e0cb0b90968a5bb60f706695df1c4082d6d75c98422978d7573e938f4c",
+    "ammeter-clock-rev2-Edge_Cuts.gm1": "94d968ea47a878ea90069b40985fe66aca9b7ee96bb6150eb28cdeee99f76266",
+    "ammeter-clock-rev2-F_Cu.gtl": "72c8b525c1bff0a60f74053c72fe858ebae1f452c414bcc588bdc0ac7986730a",
+    "ammeter-clock-rev2-F_Mask.gts": "f05d23a2ba18099d5c9ab815656df88cd39f9b483dfce06e04d7e3bfe3385f27",
+    "ammeter-clock-rev2-F_Paste.gtp": "6e5929101b40700609dc8aef6e2df50cb5be6340ad90399960f33cac2fb153a1",
+    "ammeter-clock-rev2-F_Silkscreen.gto": "9d8db0d4f01c1ee77c20ea070d4ffaa3a9908ac5c808fc8cb5a55c644816cd57",
+    "ammeter-clock-rev2-NPTH.drl": "a2d04cb0747995289c5dbf8fe22d5fc2dede30e687d92218a48dc690cf58e017",
+    "ammeter-clock-rev2-PTH.drl": "ed2d29261501b4dfc87c8af1eaab508e9d359cd20e424c141d01201098b53617",
+    "ammeter-clock-rev2-job.gbrjob": "9c9859fb28be0877cda7fe24e356e51f0ac14f49e00f0e75b4ab810a2638ebb5"
+  },
+  "assembly_files": {
+    "JLCPCB-BOM-REV2.csv": "870165c2d0c69a531b92a16763ecdd201f31adb1767e0eaf247b3ccee063c7fc",
+    "JLCPCB-CPL-REV2.csv": "61bb43d98e80422e8a3697d2dd31cf69cc069adbf3b0596d050837535be731a8"
+  }
+}

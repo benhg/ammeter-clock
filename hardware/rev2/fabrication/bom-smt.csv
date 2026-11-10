@@ -1,0 +1,7 @@
+Designator,Quantity,Value,Package,Manufacturer,MPN
+R1,1,22k 0.1%,Resistor_SMD:R_0805_2012Metric,RESI,PTFR0805B22K0N9
+R2,1,10k 0.1%,Resistor_SMD:R_0805_2012Metric,RESI,PTFR0805B10K0N9
+U3,1,OPA197ID,Package_SO:SOIC-8_3.9x4.9mm_P1.27mm,Texas Instruments,OPA197IDR
+U1,1,MCP4728-E/UN,Package_SO:MSOP-10_3x3mm_P0.5mm,Microchip,MCP4728-E/UN
+C6,1,1n C0G 25V,Capacitor_SMD:C_0805_2012Metric,Samsung Electro-Mechanics,CL21C102JBCNNNC
+R9,1,4.7k 1%,Resistor_SMD:R_0805_2012Metric,UNI-ROYAL,0805W8F4701T5E

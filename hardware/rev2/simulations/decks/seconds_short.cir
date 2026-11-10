@@ -1,0 +1,12 @@
+seconds_short
+Vsecond s 0 4.095
+Rseries s 0 55440
+
+.control
+set wr_singlescale
+set wr_vecnames
+tran 1u 2m
+wrdata results/seconds_short.dat i(Vsecond)
+quit
+.endc
+.end

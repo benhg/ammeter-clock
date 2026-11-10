@@ -18,6 +18,12 @@ bool dacReady = false, timeValid = false, manualOverride = false;
 bool testActive = false;
 uint8_t testStep = 0;
 uint32_t testStarted = 0;
+bool calActive=false,calExpired=false,calSeconds=false;
+uint16_t calHourScale=0,calMinuteScale=0,calSecondScale=0;
+uint8_t calHour=0,calMinute=0,calSecond=0;
+uint32_t calTouched=0;
+bool chordTracking=false,chordFired=false,pendingHour=false,pendingMinute=false;
+uint32_t chordStarted=0,hourPendingAt=0,minutePendingAt=0;
 uint32_t utcEpoch = MIN_EPOCH, lastTick = 0;
 const char *timeSource = "unset";
 char inputLine[224];
@@ -55,19 +61,21 @@ void updateGauges() {
   uint32_t local = localEpoch(utcEpoch, settings);
   uint8_t hour = (local / 3600) % 12;
   if (!hour) hour = 12;
-  bool drive = settings.enabled && timeValid;
-  uint16_t h = drive ? uint32_t(hour)*settings.hourScale/12 : 0;
-  uint16_t m = drive ? uint32_t(local/60%60)*settings.minuteScale/60 : 0;
-  if (testActive) {
-    h = uint32_t(testStep/5)*settings.hourScale/12;
-    m = uint32_t(testStep)*settings.minuteScale/60;
-  }
-  bool hOK = writeDAC(HOUR_CHANNEL,h);
-  bool mOK = writeDAC(MINUTE_CHANNEL,m);
-  if (!hOK || !mOK) {
-    testActive = false; zeroOutputs(); dacReady = false; // latch until restart; never imply zero was verified
-  }
+  bool drive=settings.enabled&&timeValid&&!calExpired;
+  uint16_t hs=calActive?calHourScale:settings.hourScale;
+  uint16_t ms=calActive?calMinuteScale:settings.minuteScale;
+  uint16_t ss=calActive?calSecondScale:settings.secondScale;
+  bool seconds=calActive?calSeconds:settings.secondsEnabled;
+  uint16_t h=drive?uint32_t(hour)*hs/12:0;
+  uint16_t m=drive?uint32_t(local/60%60)*ms/60:0;
+  uint16_t second=drive&&seconds?uint32_t(local%60)*ss/60:0;
+  if(calActive){h=uint32_t(calHour)*hs/12;m=uint32_t(calMinute)*ms/60;second=seconds?uint32_t(calSecond)*ss/60:0;}
+  if(testActive){h=uint32_t(testStep/5)*hs/12;m=uint32_t(testStep)*ms/60;second=seconds?uint32_t(testStep)*ss/60:0;}
+  bool hOK=writeDAC(HOUR_CHANNEL,h),mOK=writeDAC(MINUTE_CHANNEL,m),sOK=writeDAC(SECOND_CHANNEL,second);
+  if(!hOK||!mOK||!sOK){calActive=false;testActive=false;zeroOutputs();dacReady=false;}
 }
+void cancelCalibration(){calActive=false;calExpired=false;testActive=false;updateGauges();}
+
 void testTick(uint32_t now) {
   if (!testActive) return;
   uint32_t step = uint32_t(now-testStarted)/1000;
@@ -89,7 +97,7 @@ void setClock(uint32_t epoch, const char *source) {
 void ok() { Serial.println(F("OK {}")); }
 void error(const __FlashStringHelper *message) { Serial.print(F("ERR ")); Serial.println(message); }
 void printStatus() {
-  Serial.print(F("OK {\"protocol\":1,\"firmware\":\"0.2.2\",\"board\":\""));
+  Serial.print(F("OK {\"protocol\":1,\"firmware\":\"0.3.0\",\"board\":\""));
 #if CLOCK_WIFI
   Serial.print(F("uno-r4-wifi"));
 #else
@@ -105,6 +113,19 @@ void printStatus() {
   Serial.print(F(",\"test_active\":")); Serial.print(testActive ? F("true") : F("false"));
   Serial.print(F(",\"test_hour\":")); Serial.print(testActive ? testStep/5 : 0);
   Serial.print(F(",\"test_minute\":")); Serial.print(testActive ? testStep : 0);
+  Serial.print(F(",\"cal_active\":"));Serial.print(calActive?F("true"):F("false"));
+  Serial.print(F(",\"cal_timeout\":"));Serial.print(calExpired?F("true"):F("false"));
+  Serial.print(F(",\"seconds_enabled\":"));Serial.print(settings.secondsEnabled?F("true"):F("false"));
+  Serial.print(F(",\"second_scale\":"));Serial.print(settings.secondScale);
+  if(calActive){
+    Serial.print(F(",\"draft_hour\":"));Serial.print(calHourScale);
+    Serial.print(F(",\"draft_minute\":"));Serial.print(calMinuteScale);
+    Serial.print(F(",\"draft_second\":"));Serial.print(calSecondScale);
+    Serial.print(F(",\"draft_seconds_enabled\":"));Serial.print(calSeconds?F("true"):F("false"));
+    Serial.print(F(",\"cal_hour\":"));Serial.print(calHour);
+    Serial.print(F(",\"cal_minute\":"));Serial.print(calMinute);
+    Serial.print(F(",\"cal_second\":"));Serial.print(calSecond);
+  }
   Serial.print(F(",\"hour_scale\":")); Serial.print(settings.hourScale);
   Serial.print(F(",\"minute_scale\":")); Serial.print(settings.minuteScale);
   Serial.print(F(",\"offset\":")); Serial.print(settings.offsetMinutes);
@@ -131,9 +152,39 @@ bool number(const char *s, long minimum, long maximum, long &out) {
   char *end; out = strtol(s,&end,10);
   return !*end && out >= minimum && out <= maximum;
 }
+void calibrationCommand(char *context){
+  char *op=strtok_r(nullptr," ",&context);
+  char *a=strtok_r(nullptr," ",&context),*b=strtok_r(nullptr," ",&context),*c=strtok_r(nullptr," ",&context),*extra=strtok_r(nullptr," ",&context);
+  long x,y,z;
+  if(!op||extra){error(F("invalid_calibration_command"));return;}
+  if(!strcmp(op,"BEGIN")&&!b&&number(a,0,1,x)){
+    if(!dacReady){error(F("dac_unavailable"));return;}
+    if(calActive){error(F("calibration_already_active"));return;}
+    calHourScale=settings.hourScale;calMinuteScale=settings.minuteScale;calSecondScale=settings.secondScale;
+    calSeconds=x;calHour=calMinute=calSecond=0;calExpired=false;testActive=false;calActive=true;calTouched=millis();
+#if CLOCK_WIFI
+    ntpWaiting=false;ntpDue=true;
+#endif
+    updateGauges();ok();return;
+  }
+  if(!strcmp(op,"CANCEL")&&!a){cancelCalibration();ok();return;}
+  if(!calActive){error(F("calibration_not_active"));return;}
+  if(!strcmp(op,"TARGET")&&number(a,0,12,x)&&number(b,0,60,y)&&number(c,0,60,z)){
+    calHour=x;calMinute=y;calSecond=z;testActive=false;
+  }else if(!strcmp(op,"SCALE")&&number(a,1,4095,x)&&number(b,1,4095,y)&&number(c,1,4095,z)){
+    calHourScale=x;calMinuteScale=y;calSecondScale=z;
+  }else if(!strcmp(op,"SWEEP")&&!a){testActive=true;testStep=0;testStarted=millis();
+  }else if(!strcmp(op,"SAVE")&&!a){
+    if(!dacReady){error(F("dac_unavailable"));return;}
+    settings.hourScale=calHourScale;settings.minuteScale=calMinuteScale;settings.secondScale=calSecondScale;
+    settings.secondsEnabled=calSeconds;settings.enabled=true;calActive=false;calExpired=false;testActive=false;saveSettings();
+  }else{error(F("invalid_calibration_command"));return;}
+  calTouched=millis();updateGauges();ok();
+}
 void command(char *line) {
   char *context;
   char *cmd = strtok_r(line," ",&context);
+  if(cmd&&!strcmp(cmd,"CAL")){calibrationCommand(context);return;}
   char *a = strtok_r(nullptr," ",&context);
   char *b = strtok_r(nullptr," ",&context);
   char *extra = strtok_r(nullptr," ",&context);
@@ -149,17 +200,24 @@ void command(char *line) {
     settings.offsetMinutes = x; settings.dst = y; saveSettings(); updateGauges(); ok(); return;
   }
   if (!strcmp(cmd,"SCALE") && !extra && number(a,1,4095,x) && number(b,1,4095,y)) {
+    if(calActive){error(F("finish_calibration_first"));return;}
     testActive = false; settings.hourScale = x; settings.minuteScale = y; saveSettings(); updateGauges(); ok(); return;
   }
   if (!strcmp(cmd,"OUTPUT") && !b && number(a,0,1,x)) {
     if (x && !dacReady) { error(F("dac_unavailable")); return; }
     if (x && !timeValid) { error(F("set_time_first")); return; }
-    if (!x) testActive = false;
+    if (!x){calActive=false;testActive=false;}
+    calExpired=false;
     settings.enabled = x; saveSettings(); updateGauges(); ok(); return;
+  }
+  if(!strcmp(cmd,"SECONDS")&&!b&&number(a,0,1,x)){
+    if(calActive){error(F("finish_calibration_first"));return;}
+    settings.secondsEnabled=x;saveSettings();updateGauges();ok();return;
   }
   if (!strcmp(cmd,"TEST") && a && !b) {
     if (!strcmp(a,"STOP")) { testActive = false; updateGauges(); ok(); return; }
     if (!strcmp(a,"START")) {
+      if(calActive){error(F("use_calibration_sweep"));return;}
       if (!dacReady) { error(F("dac_unavailable")); return; }
       if (!settings.enabled) { error(F("enable_meters_first")); return; }
 #if CLOCK_WIFI
@@ -245,9 +303,9 @@ void networkTick(uint32_t now) {
   if (ntpWaiting && uint32_t(now-ntpSentAt) >= 5000) { ntpWaiting = false; ntpState = "reply_timeout"; }
   if (!ntpWaiting && (ntpDue || uint32_t(now-lastNtpAttempt) >= ntpInterval)) {
     ntpDue = false; lastNtpAttempt = now; ntpInterval = 60000;
-    // Official Cloudflare anycast fallback keeps time sync independent of DNS.
+    // Cloudflare anycast address keeps time sync independent of DNS.
     // https://developers.cloudflare.com/time-services/ntp/usage/
-    if (WiFi.hostByName("pool.ntp.org",ntpAddress) != 1) ntpAddress = IPAddress(162,159,200,1);
+    ntpAddress = IPAddress(162,159,200,1);
     ntpState = "send_failed";
     uint8_t packet[48] = {};
     packet[0] = 0x23; // NTP v4 client, synchronized-state unknown.
@@ -262,7 +320,7 @@ void networkTick(uint32_t now) {
 #endif
 void setup() {
   Serial.begin(115200); pinMode(2,INPUT_PULLUP); pinMode(3,INPUT_PULLUP); Wire.begin();
-  EEPROM.get(0,settings); if (!valid(settings)) settings = defaults();
+  EEPROM.get(0,settings);if(!valid(settings)){SettingsV1 old;EEPROM.get(0,old);if(!migrate(old,settings))settings=defaults();}
   zeroOutputs(); lastTick = millis(); updateGauges();
 #if CLOCK_WIFI
   randomSeed(micros()); lastAttempt = millis()-60000UL;
@@ -275,21 +333,39 @@ void loop() {
   if (elapsed) { utcEpoch += elapsed; lastTick += elapsed*1000; updateGauges(); }
   readCommands();
   now = millis();
-  bool h = hourButton.poll(digitalRead(2) == LOW,now);
-  bool m = minuteButton.poll(digitalRead(3) == LOW,now);
-  if (h || m) {
-    testActive = false;
-    if (!timeValid) { utcEpoch = MIN_EPOCH - int32_t(settings.offsetMinutes)*60; timeValid = true; }
-    utcEpoch -= localEpoch(utcEpoch,settings)%60;
-    if (h) utcEpoch += 3600;
-    if (m) utcEpoch += 60;
-    manualOverride = true;
+  if(calActive&&uint32_t(now-calTouched)>=600000UL){calActive=false;testActive=false;calExpired=true;updateGauges();}
+  bool h=hourButton.poll(digitalRead(2)==LOW,now),m=minuteButton.poll(digitalRead(3)==LOW,now);
+  bool both=digitalRead(2)==LOW&&digitalRead(3)==LOW;
+  if(both){
+    pendingHour=pendingMinute=false;
+    if(!chordTracking){chordTracking=true;chordFired=false;chordStarted=now;}
+    if(!chordFired&&uint32_t(now-chordStarted)>=3000){
+      chordFired=true;cancelCalibration();
 #if CLOCK_WIFI
-    ntpWaiting = false;
+      manualOverride=false;ntpWaiting=false;ntpDue=true;
 #endif
-    lastTick = now; timeSource = "buttons"; updateGauges();
+    }
+  }else if(chordTracking){
+    pendingHour=pendingMinute=false;
+    if(digitalRead(2)==HIGH&&digitalRead(3)==HIGH){chordTracking=false;chordFired=false;}
+  }else{
+    if(h&&!pendingHour){pendingHour=true;hourPendingAt=now;}
+    if(m&&!pendingMinute){pendingMinute=true;minutePendingAt=now;}
+    h=pendingHour&&uint32_t(now-hourPendingAt)>=180;
+    m=pendingMinute&&uint32_t(now-minutePendingAt)>=180;
+    if(h||m){
+      if(h)pendingHour=false;if(m)pendingMinute=false;
+      cancelCalibration();
+      if(!timeValid){utcEpoch=MIN_EPOCH-int32_t(settings.offsetMinutes)*60;timeValid=true;}
+      utcEpoch-=localEpoch(utcEpoch,settings)%60;
+      if(h)utcEpoch+=3600;if(m)utcEpoch+=60;manualOverride=true;
+#if CLOCK_WIFI
+      ntpWaiting=false;
+#endif
+      lastTick=now;timeSource="buttons";updateGauges();
+    }
   }
 #if CLOCK_WIFI
-  if (!testActive) networkTick(millis());
+  if (!testActive&&!calActive&&!chordTracking) networkTick(millis());
 #endif
 }

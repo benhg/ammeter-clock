@@ -1,0 +1,1 @@
+PASS: 32 R4 WiFi shield header coordinates and four mounting holes match (max error 0.000000 mm). Used signals map to 5V/GND, Wire SDA/SCL, D2/D3. BOOT/MD contact left unconnected. ESP header covered by expanded exclusion; antenna region has no component pads. Physical stack height and WiFi RF behavior require bench verification.

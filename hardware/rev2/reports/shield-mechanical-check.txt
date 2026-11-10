@@ -1,0 +1,1 @@
+PASS: all 32 Uno R3 header pins, four 3.2mm mounting holes, pin assignments and 4.064mm header offset match official CAD. Maximum coordinate error 0.000000mm. Four underside connector keepouts plus two-layer R4 antenna keepout present. Physical stacking clearance remains untested.

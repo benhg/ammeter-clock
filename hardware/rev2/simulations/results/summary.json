@@ -1,0 +1,157 @@
+{
+  "revision": "2",
+  "analysis_count": 205,
+  "verified_at_utc": "2026-11-10T06:25:00.045808+00:00",
+  "source_board_sha256": "9b31594a265fc11b5bf1a1c8137d1e081516c64183144f119a89f274302ccdb1",
+  "engine": "** ngspice-47 : Circuit level simulation program",
+  "hour_code": 3750,
+  "minute_code": 4095,
+  "seconds_corner_count": 18,
+  "hour_corner_count": 108,
+  "minute_corner_count": 54,
+  "hour_output_min_V": 11.9835583,
+  "hour_output_max_V": 12.0165772,
+  "minute_current_max_uA": 73.86363639999999,
+  "step_cases": [
+    {
+      "meter_ohm": 1000,
+      "load_cap_F": 1e-11,
+      "high_mean_V": 12.0000427,
+      "late_ripple_pp_V": 0.0,
+      "max_output_V": 12.0000427
+    },
+    {
+      "meter_ohm": 1000,
+      "load_cap_F": 1e-09,
+      "high_mean_V": 12.0000427,
+      "late_ripple_pp_V": 0.0,
+      "max_output_V": 12.0000427
+    },
+    {
+      "meter_ohm": 1000,
+      "load_cap_F": 1e-08,
+      "high_mean_V": 12.0000427,
+      "late_ripple_pp_V": 0.0,
+      "max_output_V": 12.0000427
+    },
+    {
+      "meter_ohm": 1000,
+      "load_cap_F": 1e-07,
+      "high_mean_V": 12.0000427,
+      "late_ripple_pp_V": 0.0,
+      "max_output_V": 12.0000427
+    },
+    {
+      "meter_ohm": 2000,
+      "load_cap_F": 1e-11,
+      "high_mean_V": 12.0000516,
+      "late_ripple_pp_V": 0.0,
+      "max_output_V": 12.0000516
+    },
+    {
+      "meter_ohm": 2000,
+      "load_cap_F": 1e-09,
+      "high_mean_V": 12.0000516,
+      "late_ripple_pp_V": 0.0,
+      "max_output_V": 12.0000516
+    },
+    {
+      "meter_ohm": 2000,
+      "load_cap_F": 1e-08,
+      "high_mean_V": 12.0000516,
+      "late_ripple_pp_V": 0.0,
+      "max_output_V": 12.0000516
+    },
+    {
+      "meter_ohm": 2000,
+      "load_cap_F": 1e-07,
+      "high_mean_V": 12.0000516,
+      "late_ripple_pp_V": 0.0,
+      "max_output_V": 12.0000516
+    },
+    {
+      "meter_ohm": 10000,
+      "load_cap_F": 1e-11,
+      "high_mean_V": 12.0000583,
+      "late_ripple_pp_V": 0.0,
+      "max_output_V": 12.0000583
+    },
+    {
+      "meter_ohm": 10000,
+      "load_cap_F": 1e-09,
+      "high_mean_V": 12.0000583,
+      "late_ripple_pp_V": 0.0,
+      "max_output_V": 12.0000583
+    },
+    {
+      "meter_ohm": 10000,
+      "load_cap_F": 1e-08,
+      "high_mean_V": 12.0000583,
+      "late_ripple_pp_V": 0.0,
+      "max_output_V": 12.0000583
+    },
+    {
+      "meter_ohm": 10000,
+      "load_cap_F": 1e-07,
+      "high_mean_V": 12.000058299999997,
+      "late_ripple_pp_V": 0.0,
+      "max_output_V": 12.0000583
+    },
+    {
+      "meter_ohm": 100000,
+      "load_cap_F": 1e-11,
+      "high_mean_V": 12.0000606,
+      "late_ripple_pp_V": 0.0,
+      "max_output_V": 12.0000606
+    },
+    {
+      "meter_ohm": 100000,
+      "load_cap_F": 1e-09,
+      "high_mean_V": 12.0000606,
+      "late_ripple_pp_V": 0.0,
+      "max_output_V": 12.0000606
+    },
+    {
+      "meter_ohm": 100000,
+      "load_cap_F": 1e-08,
+      "high_mean_V": 12.0000606,
+      "late_ripple_pp_V": 0.0,
+      "max_output_V": 12.0000606
+    },
+    {
+      "meter_ohm": 100000,
+      "load_cap_F": 1e-07,
+      "high_mean_V": 12.0000606,
+      "late_ripple_pp_V": 0.0,
+      "max_output_V": 12.0000606
+    }
+  ],
+  "ripple_cases": [
+    {
+      "rail": "usb",
+      "frequency_Hz": 100,
+      "assumed_supply_ripple_pp_V": 0.1,
+      "output_ripple_pp_V": 0.0003390000000003113
+    },
+    {
+      "rail": "boost",
+      "frequency_Hz": 100,
+      "assumed_supply_ripple_pp_V": 0.1,
+      "output_ripple_pp_V": 2.1999999990640617e-06
+    },
+    {
+      "rail": "boost",
+      "frequency_Hz": 100000,
+      "assumed_supply_ripple_pp_V": 0.1,
+      "output_ripple_pp_V": 0.0009186700000000103
+    },
+    {
+      "rail": "boost",
+      "frequency_Hz": 1200000,
+      "assumed_supply_ripple_pp_V": 0.1,
+      "output_ripple_pp_V": 0.005595245999999943
+    }
+  ],
+  "failed_case_count": 0,
+  "failed_cases": []
+}

@@ -1,0 +1,14 @@
+minute_corner_018
+Vdac dac 0 4.095
+VoutputSense dac series 0
+Rseries series meter 55440
+VcoilSense meter 0 0
+
+.control
+set wr_singlescale
+set wr_vecnames
+op
+wrdata results/minute_corner_018.dat i(Vdac)
+quit
+.endc
+.end

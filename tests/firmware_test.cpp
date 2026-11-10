@@ -24,17 +24,17 @@ int main() {
   // 2026-01-01 20:30 UTC = 12:30 Pacific standard time.
   setClock(dateEpoch(2026,1,1)+20*3600+30*60,"usb");
   auto packet = [](uint8_t c,uint16_t code){return std::vector<uint8_t>{0x60,uint8_t(0x40|(c<<1)),uint8_t(0x90|(code>>8)),uint8_t(code)};};
-  assert(Wire.writes[Wire.writes.size()-2] == packet(3,3750));
-  assert(Wire.writes.back() == packet(2,2047));
+  assert(Wire.writes[Wire.writes.size()-3] == packet(3,3750));
+  assert(Wire.writes[Wire.writes.size()-2] == packet(2,2047));
   // Both dial endpoints, automatic return, no writes, stop/disable cancellation.
   unsigned patternWrites=EEPROM.writes;
   uint32_t before=utcEpoch;
   send("TEST START"); assert(testActive && testStep==0);
-  assert(Wire.writes[Wire.writes.size()-2]==packet(3,0) && Wire.writes.back()==packet(2,0));
+  assert(Wire.writes[Wire.writes.size()-3]==packet(3,0) && Wire.writes[Wire.writes.size()-2]==packet(2,0));
   fakeNow+=30000; loop(); assert(testActive && testStep==30 && utcEpoch==before+30);
-  assert(Wire.writes[Wire.writes.size()-2]==packet(3,1875) && Wire.writes.back()==packet(2,2047));
+  assert(Wire.writes[Wire.writes.size()-3]==packet(3,1875) && Wire.writes[Wire.writes.size()-2]==packet(2,2047));
   fakeNow+=30000; loop(); assert(testActive && testStep==60);
-  assert(Wire.writes[Wire.writes.size()-2]==packet(3,3750) && Wire.writes.back()==packet(2,4095));
+  assert(Wire.writes[Wire.writes.size()-3]==packet(3,3750) && Wire.writes[Wire.writes.size()-2]==packet(2,4095));
   fakeNow+=1000; loop(); assert(!testActive && utcEpoch==before+61);
   assert(EEPROM.writes==patternWrites);
   send("TEST START"); send("TEST STOP"); assert(!testActive);
@@ -53,11 +53,16 @@ int main() {
   // Bounce rejected, initial press accepted, hold repeat and release.
   send("TEST START");
   pins[2]=LOW; loop(); fakeNow+=10; loop(); assert(!hourButton.stable);
-  fakeNow+=21; loop(); assert(!testActive && hourButton.stable && manualOverride && !strcmp(timeSource,"buttons"));
-  uint32_t t = utcEpoch;
-  fakeNow+=799; loop(); assert(utcEpoch == t);
-  fakeNow+=1; loop(); assert(utcEpoch == t+3600);
-  pins[2]=HIGH; loop(); fakeNow+=31; loop(); assert(!hourButton.stable);
+  fakeNow+=21; loop(); assert(hourButton.stable && testActive);
+  fakeNow+=180; loop(); assert(!testActive && !strcmp(timeSource,"buttons"));
+  uint32_t t=utcEpoch;
+  fakeNow+=620;loop(); // repeat event is queued after 800ms held
+  fakeNow+=180;loop(); assert(utcEpoch==t+3600);
+  pins[2]=HIGH;loop();fakeNow+=31;loop();assert(!hourButton.stable);
+  // A two-button hold cancels both pending clicks and preserves time/settings.
+  pins[2]=pins[3]=LOW;loop();t=utcEpoch;
+  fakeNow+=31;loop();fakeNow+=3000;loop();assert(chordFired&&utcEpoch==t+3);
+  pins[2]=pins[3]=HIGH;loop();fakeNow+=31;loop();assert(!chordTracking);
   // Rollover preserves fractional seconds.
   lastTick=UINT32_MAX-499; fakeNow=500; t=utcEpoch; loop(); assert(utcEpoch==t+1);
   // Invalid input cannot silently change saved settings.
@@ -68,6 +73,45 @@ int main() {
   send("SYNC"); assert(Serial.output=="ERR wifi_not_supported\n");
   send(std::string(300,'X')); assert(Serial.output=="ERR line_too_long\n");
   send("STATUS"); assert(Serial.output.find("OK {")==0);
+  // Migrate installed v1 data without losing per-unit calibration or credentials.
+  SettingsV1 legacy={};legacy.magic=0x434C4B32UL;legacy.version=1;legacy.offsetMinutes=-480;
+  legacy.dst=1;legacy.hourScale=3719;legacy.minuteScale=3413;legacy.enabled=1;
+  strcpy(legacy.ssid,"example");strcpy(legacy.password,"test-password");legacy.checksum=checksum(legacy);
+  Settings migrated;assert(migrate(legacy,migrated)&&valid(migrated));
+  assert(migrated.hourScale==3719&&migrated.minuteScale==3413&&!migrated.secondsEnabled);
+  assert(!strcmp(migrated.password,legacy.password));
+  // Wizard drafts are volatile, zero is exact, arbitrary reference holds are independent of time.
+  send("SECONDS 1");assert(settings.secondsEnabled);
+  unsigned wizardWrites=EEPROM.writes;
+  Settings original=settings;
+  send("CAL BEGIN 1");assert(calActive);
+  assert(Wire.writes[Wire.writes.size()-3]==packet(3,0));
+  assert(Wire.writes[Wire.writes.size()-2]==packet(2,0)&&Wire.writes.back()==packet(1,0));
+  send("CAL TARGET 12 30 30");assert(calHour==12&&calMinute==30&&calSecond==30);
+  send("CAL SCALE 3719 3413 3400");assert(calHourScale==3719&&settings.hourScale==original.hourScale);
+  uint32_t held=utcEpoch;fakeNow+=3000;loop();assert(utcEpoch==held+3);
+  assert(Wire.writes[Wire.writes.size()-3]==packet(3,3719));
+  assert(Wire.writes[Wire.writes.size()-2]==packet(2,1706)&&Wire.writes.back()==packet(1,1700));
+  send("CAL SWEEP");fakeNow+=60000;loop();assert(testActive&&testStep==60);
+  assert(Wire.writes.back()==packet(1,3400));
+  fakeNow+=1000;loop();assert(!testActive&&calActive&&Wire.writes.back()==packet(1,1700));
+  assert(EEPROM.writes==wizardWrites);
+  send("CAL CANCEL");assert(!calActive&&!memcmp(&settings,&original,sizeof(Settings)));
+  send("CAL BEGIN 1");send("CAL TARGET 6 15 45");send("CAL SCALE 3719 3413 3400");send("CAL SAVE");
+  assert(!calActive&&settings.hourScale==3719&&settings.minuteScale==3413&&settings.secondScale==3400);
+  Settings committed;EEPROM.get(0,committed);assert(valid(committed));
+  send("CAL BEGIN 0");fakeNow+=600001;loop();assert(!calActive&&calExpired&&Wire.writes.back()==packet(1,0));
+  send("CAL CANCEL");assert(!calExpired);
+  send("CAL BEGIN 0");send("OUTPUT 0");assert(!calActive&&!settings.enabled);
+  send("CAL SAVE");assert(Serial.output=="ERR calibration_not_active\n");
+  // A delayed loop must not keep postponing a queued repeat forever.
+  hourButton=Button();minuteButton=Button();pendingHour=pendingMinute=false;
+  pins[2]=pins[3]=HIGH;loop();pins[2]=LOW;fakeNow+=40;loop();fakeNow+=40;loop();
+  fakeNow+=180;loop();
+  auto slowEpoch=utcEpoch;
+  fakeNow+=800;loop();fakeNow+=200;loop();
+  assert(utcEpoch>=slowEpoch+3600);
+  pins[2]=HIGH;loop();fakeNow+=40;loop();
   // Persisted config survives reload, corrupt or incomplete writes are rejected.
   Settings saved; EEPROM.get(0,saved); assert(valid(saved));
   saved.password[0]='X'; assert(!valid(saved));

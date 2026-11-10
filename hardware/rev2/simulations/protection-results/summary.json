@@ -1,0 +1,49 @@
+{
+  "revision": "2",
+  "verified_at_utc": "2026-11-10T06:24:47.134147+00:00",
+  "source_board_sha256": "9b31594a265fc11b5bf1a1c8137d1e081516c64183144f119a89f274302ccdb1",
+  "accepted": 6,
+  "rejected": 0,
+  "cases": [
+    {
+      "dac_V": 3.75,
+      "resistance_ohm": 4653.0,
+      "peak_current_A": 0.000741297808,
+      "conservative_zero_drop_bound_A": 0.0008059316569954867
+    },
+    {
+      "dac_V": 3.75,
+      "resistance_ohm": 4747.0,
+      "peak_current_A": 0.000726621736,
+      "conservative_zero_drop_bound_A": 0.0007899726142827049
+    },
+    {
+      "dac_V": 4.095,
+      "resistance_ohm": 4653.0,
+      "peak_current_A": 0.000815427589,
+      "conservative_zero_drop_bound_A": 0.0008800773694390715
+    },
+    {
+      "dac_V": 4.095,
+      "resistance_ohm": 4747.0,
+      "peak_current_A": 0.000799283909,
+      "conservative_zero_drop_bound_A": 0.0008626500947967136
+    },
+    {
+      "dac_V": 5.25,
+      "resistance_ohm": 4653.0,
+      "peak_current_A": 0.0010636012,
+      "conservative_zero_drop_bound_A": 0.0011283043197936814
+    },
+    {
+      "dac_V": 5.25,
+      "resistance_ohm": 4747.0,
+      "peak_current_A": 0.00104254423,
+      "conservative_zero_drop_bound_A": 0.001105961659995787
+    }
+  ],
+  "bound_at_5_25V_minus_1pct_A": 0.0011283043197936814,
+  "bound_including_assumed_total_minus_2pct_A": 0.0011398176291793312,
+  "max_resistor_power_W": 0.005923597678916828,
+  "scope": "Resistor current limiting only; 0.3V/1ohm engineering clamp, imposed rail ramp. Not a simulation of actual unpowered OPA197, input voltage stress, Pololu startup or needle motion."
+}

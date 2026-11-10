@@ -35,7 +35,7 @@ Windows: use `.venv-clock\Scripts\python.exe` in the last two commands. Close Ar
 ## Use
 
 1. Plug in the Uno with a USB data cable. Remove any temporary J3 bench-test short.
-2. Choose the detected device and correct model. Click **Flash firmware** if it does not already have main firmware 0.2.2. The bundled bench sketches cannot answer setup commands.
+2. Choose the detected device and correct model. Click **Flash firmware** if it does not already have main firmware 0.3.0. The bundled bench sketches cannot answer setup commands.
 3. After flashing, refresh devices and connect. The R3 resets when the USB serial connection opens, so configure time after connecting.
 4. Choose a timezone. **Use computer time** saves it and sets UTC from the computer. Check the computer's own date/time first.
 5. On R4 WiFi, enter SSID/password and save. Saving a network does not override an intentional manual time setting: click **Resume NTP**, or restart, to allow network time. Status distinguishes Wi-Fi connectivity from an actual NTP synchronization. Network association can take a minute.
@@ -62,3 +62,27 @@ Tagging `v*` runs `.github/workflows/desktop.yml`: four native build runners, ho
 Web Serial tests: `node tests/web_serial_test.js`. `python tools/clock_setup/build_pages.py` creates `_site-clock/` with only public UI assets. Wi-Fi credentials travel directly to the board, not to GitHub Pages. The website loads no third-party scripts.
 
 **Run test pattern** (firmware 0.2.2+) sweeps enabled meter outputs through hours 0–12 and minutes 0–60 over 61 seconds and then restores live time. Stop test, Disable meters, or either physical button cancels it. It never saves a test time or changes calibration.
+
+## Guided calibration (firmware 0.3.0+)
+
+Connect, then choose **Start calibration wizard**. Check the seconds-meter option
+only for a Rev 2 board with that movement connected.
+
+1. With outputs held at zero, adjust the meters' mechanical screws to zero.
+2. The wizard holds 12:30. Use **Lower needle** / **Raise needle** to match hours
+   to 12 and minutes to 30, choosing a finer adjustment size near the mark.
+   The optional measured-reading calculator can make a larger correction directly.
+3. With seconds connected, adjust it to 30 too.
+4. Check other values or run a sweep. **Save & run clock** saves calibration and
+   enables live outputs; **Cancel** discards the draft.
+
+Use the same scale marks you want the final clock to indicate. Neither motor
+movement nor actual current is measured by the software. Draft values stay in RAM
+until Save, and the clock keeps time throughout. An idle wizard times out after ten
+minutes and zeros outputs. On R4, hold both physical buttons for three seconds to
+resume NTP after manual adjustment. The optional seconds setting is retained with
+calibration; installed two-meter clocks migrate with seconds disabled.
+
+Tests: Python backend command validation, `node tests/web_serial_test.js`, and
+`node tests/calibration_ui_test.js` exercise the actual UI handlers using a transport
+fixture. A packaged app smoke test verifies bundled firmware, CLI, assets and HTTP UI.

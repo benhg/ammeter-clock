@@ -1,0 +1,1 @@
+PASS: 32 components, 70 connected pins and 27 intentionally unused pins match schematic and PCB.

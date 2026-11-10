@@ -28,6 +28,7 @@ jobs:
       - run: python -m pip install -r tools/clock_setup/requirements.txt pyinstaller==6.22.0
       - run: python -m unittest discover -s tests -p test_clock_setup.py
       - run: node tests/web_serial_test.js
+      - run: node tests/calibration_ui_test.js
       - run: python tools/clock_setup/build_app.py
       - run: python tools/clock_setup/smoke_app.py
       - uses: actions/upload-artifact@v4
@@ -37,9 +38,15 @@ jobs:
             dist-clock/*.zip
             dist-clock/*.tar.gz
           if-no-files-found: error
+  firmware-tests:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: c++ -std=c++17 -Wall -Wextra -Itests tests/firmware_test.cpp -o /tmp/firmware-test && /tmp/firmware-test
+      - run: c++ -std=c++17 -Wall -Wextra -Itests tests/firmware_r4_test.cpp -o /tmp/firmware-r4-test && /tmp/firmware-r4-test
   release:
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: build
+    needs: [build, firmware-tests]
     runs-on: ubuntu-22.04
     permissions:
       contents: write

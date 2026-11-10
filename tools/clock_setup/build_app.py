@@ -19,7 +19,7 @@ def main():
             '--hidden-import','serial','--collect-submodules','serial',
             '--add-data',f'{ROOT/"firmware/AmmeterClock"}:firmware/AmmeterClock',
             '--add-data',f'{binary}:bin']
-    for name in ('index.html','app.js','web_serial.js','style.css'):
+    for name in ('index.html','app.js','web_serial.js','calibration.js','style.css'):
         args += ['--add-data',f'{ROOT/"tools/clock_setup"/name}:tools/clock_setup']
     if platform.system() in ('Darwin','Windows'): args += ['--windowed']
     if platform.system()=='Darwin': args += ['--osx-bundle-identifier','cloud.glick.kn6ubf-clock-setup']

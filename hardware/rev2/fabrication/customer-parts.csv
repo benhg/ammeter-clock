@@ -1,0 +1,2 @@
+Item,Quantity,Manufacturer,MPN,Source,Installation
+U4 module (customer fitted),1,Pololu,U3V16F15,https://www.pololu.com/product/4946,"Customer solders supplied male header to module, then plugs into assembler-fitted U4 socket; component side up; disconnect USB first."

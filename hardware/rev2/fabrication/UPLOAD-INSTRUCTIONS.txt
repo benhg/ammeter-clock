@@ -1,0 +1,14 @@
+AMMETER CLOCK / KN6UBF — REV2 PROTOTYPE
+Two layers, 68.58 x 53.34 mm, 1.6 mm FR4. All 28 assembler placements
+are fitted from TOP: 6 SMT and 22 through-hole. Use the REV2 BOM/CPL pair.
+U4 is the female socket only. Customer supplies the Pololu U3V16F15 module.
+R10/J10 add the seconds output; J5 is rotated 180 degrees from Rev F4.
+J10 pin1 is +, pin2 GND; both minute and second meters must be 0–100 uA.
+CPL uses pin-pattern centers, origin CAD (50,103.34), X right, Y up.
+Vendor-model rotation overrides: J1/J6/J7/J8/J9=0; U3=270 degrees.
+Verify vendor pin1 registration, connector wire-entry orientation and polarities.
+Existing F4 catalogue part choices are reused. Stock has NOT been rechecked or
+reserved for this revision. Full THT assembly requires the vendor's agreement.
+ERC/DRC/netlist and simulated interfaces pass. Rev2 itself has not been built;
+new terminal access, stack fit, startup and seconds needle motion need bench checks.
+The Pololu converter startup and actual DAC power-on state are not simulated.
