@@ -1,4 +1,4 @@
-# KN6UBF Clock Setup — native desktop app 0.4.0
+# KN6UBF Clock Setup — native desktop app 0.6.0
 
 Qt Widgets application for Windows, macOS and Linux. There is no embedded browser,
 localhost server, HTTP API or browser tab. USB and Arduino CLI operations run in a
@@ -27,6 +27,31 @@ Both onboard and external buttons work on R3/R4. Hold both for three seconds on 
 to resume NTP after manual time adjustment. The RTC remains optional/not used.
 Scanning may pause displayed needle updates/button processing while the WiFiS3
 modem blocks; elapsed time is caught up afterward. No live board is flashed by builds.
+
+## R4 Wi-Fi firmware update
+
+In **Install / update firmware**, select a detected Uno R4 WiFi and click
+**Update R4 Wi-Fi firmware**. This uses the bundled official Arduino Firmware
+Uploader 2.4.1 to install qualified connectivity firmware **0.6.1**. It downloads
+Arduino's firmware and supporting tools, so Internet access is required. The
+version is deliberately pinned rather than silently selecting an untested release.
+
+Wait for the update to finish, unplug **all** power for five seconds and reconnect.
+Then click **I have reconnected — restore clock firmware**. Never upload the clock
+sketch while the board is still in ESP download mode. The app matches the original
+board's USB serial number (or its original port if no serial number was reported),
+restores the bundled clock sketch and checks the Wi-Fi firmware version and any
+previously readable calibration/timezone/output settings. Factory boards without
+clock firmware can also be prepared. USB status does not return Wi-Fi passwords.
+
+A local recovery record survives app restart and prevents the normal upload button
+from bypassing the power-cycle step. If an update fails, reconnect and retry the
+Wi-Fi update here; the original settings snapshot is retained. A failed verification
+keeps the recovery record and its diagnostic log available. Finish with the
+[pre-shipment checks](../../docs/PRE-SHIP-TEST.md), including cold-start NTP sync.
+
+The firmware uploader is included on Windows, macOS and Linux with its vendor
+license; its official release archive checksum is checked during packaging.
 
 ## Build and tests
 

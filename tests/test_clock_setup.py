@@ -1,3 +1,4 @@
+import sys
 import importlib.util
 import json
 from pathlib import Path
@@ -6,6 +7,7 @@ import unittest
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT/'tools/clock_setup'))
 spec = importlib.util.spec_from_file_location('clock_setup', ROOT/'tools/clock_setup/app.py')
 app = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(app)

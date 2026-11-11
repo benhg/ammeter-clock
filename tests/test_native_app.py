@@ -41,6 +41,27 @@ class NativeTests(unittest.TestCase):
         self.assertFalse(self.w.working)
     def click(self,w):w.click();self.wait()
     def connect(self):self.w.refresh();self.wait();self.click(self.w.connect_btn)
+    def test_wifi_update_guides_reconnect_and_blocks_normal_upload(self):
+        self.connect()
+        self.device.wifi_pending=None
+        def update(port,retrying=False):
+            self.device.commands.append(('wifi_update',port,retrying));self.device.close()
+            self.device.wifi_pending={'port':'test'}
+            self.device.job={'state':'reconnect','log':'Unplug and reconnect'}
+        def restore(power_cycled=False):
+            self.assertTrue(power_cycled)
+            self.device.commands.append(('restore',));self.device.wifi_pending=None
+            self.device.job={'state':'done','log':'Restored and verified'}
+        self.device.update_wifi=update;self.device.restore_clock=restore
+        with patch.object(QtWidgets.QMessageBox,'question',return_value=QtWidgets.QMessageBox.Yes):
+            self.click(self.w.wifi_update_btn);self.w.poll_job()
+            self.assertTrue(self.w.wifi_restore_btn.isVisibleTo(self.w.flash_page))
+            self.assertFalse(self.w.flash_btn.isEnabled());self.assertFalse(self.w.connect_btn.isEnabled())
+            self.assertIn('Unplug',self.w.notice.text())
+            self.click(self.w.wifi_restore_btn);self.w.poll_job();self.wait()
+        self.assertIsNone(self.device.wifi_pending);self.assertIn(('restore',),self.device.commands)
+        self.assertIn('Connected',self.w.connection.text())
+
     def test_connect_without_upload_and_password_toggle(self):
         with patch('socket.socket',side_effect=AssertionError('No server permitted')):
             self.connect()

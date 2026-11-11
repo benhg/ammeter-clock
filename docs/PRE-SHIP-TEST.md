@@ -6,13 +6,13 @@ These are functional acceptance checks, not regulatory certification.
 
 ## R4 WiFi firmware preparation
 
-1. Update the ESP32-S3 connectivity firmware using Arduino's official Firmware
-   Updater or Firmware Uploader. Use the release qualified for the production batch;
+1. In Clock Setup's **Install / update firmware** tab, choose
+   **Update R4 Wi-Fi firmware** (the app bundles Arduino's official updater). Use the release qualified for the production batch;
    **0.6.1 is the currently bench-tested version**. Qualify newer releases before
    substituting them. Updating our clock sketch alone does not update this module.
 2. Disconnect all power and reconnect after the connectivity update. Do not upload
    the clock sketch while the board is still in ESP download mode.
-3. Upload the approved clock firmware again: the connectivity updater overwrites
+3. Click **I have reconnected — restore clock firmware**: the connectivity updater overwrites
    the clock sketch. Check `STATUS` for the expected `firmware` and `wifi_firmware`.
 
 Arduino's procedure:

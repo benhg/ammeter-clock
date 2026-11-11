@@ -5,8 +5,9 @@ from pathlib import Path
 from PySide6 import QtCore,QtWidgets
 from app import Device,ROOT,find_cli,run_cli
 from timezones import zone_names
+from wifi_update import find_uploader
 
-VERSION='0.5.0'
+VERSION='0.6.0'
 class WorkSignals(QtCore.QObject):
     done=QtCore.Signal(object,object)
 class Work(QtCore.QRunnable):
@@ -85,12 +86,17 @@ class Window(QtWidgets.QMainWindow):
         self.flash_page,self.flash_layout=self.page('Install / update firmware')
         self.flash_layout.addWidget(label('First-time setup only, or when updating: select your Arduino model and install the bundled clock firmware. Then return to USB connection and click Connect. Existing clock firmware does not need reinstalling each time.'))
         self.flash_layout.addWidget(self.boards);self.flash_btn=self.button('Install clock firmware',self.flash);self.flash_layout.addWidget(self.flash_btn)
+        self.wifi_version=label('R4 Wi-Fi module: connect to read its version.');self.flash_layout.addWidget(self.wifi_version)
+        self.wifi_update_hint=label('R4 WiFi only: update the separate Wi-Fi module to qualified version 0.6.1. Internet access is required. The app then guides a full power cycle and restores clock firmware.');self.flash_layout.addWidget(self.wifi_update_hint)
+        self.wifi_update_btn=self.button('Update R4 Wi-Fi firmware',self.update_wifi);self.flash_layout.addWidget(self.wifi_update_btn)
+        self.wifi_restore_btn=self.button('I have reconnected — restore clock firmware',self.restore_wifi);self.flash_layout.addWidget(self.wifi_restore_btn)
         self.log=QtWidgets.QPlainTextEdit();self.log.setReadOnly(True);self.flash_layout.addWidget(self.log)
         self.footer=label('Native desktop app · '+VERSION);layout.addWidget(self.footer)
         self.timer=QtCore.QTimer(self);self.timer.timeout.connect(self.poll);self.timer.start(2500)
         self.clock_timer=QtCore.QTimer(self);self.clock_timer.timeout.connect(self.tick_clock);self.clock_timer.start(100)
         self.job_timer=QtCore.QTimer(self);self.job_timer.timeout.connect(self.poll_job);self.job_timer.start(500)
         self.ports.currentIndexChanged.connect(self.select_board);self.controls()
+        if getattr(self.device,'wifi_pending',None):self.tabs.setCurrentWidget(self.flash_page);self.notice.setText('Unfinished Wi-Fi update: unplug all power, reconnect, then restore clock firmware below.')
         if auto_refresh:QtCore.QTimer.singleShot(0,self.refresh)
     def button(self,text,fn):
         w=QtWidgets.QPushButton(text);w.clicked.connect(lambda checked=False:fn());return w
@@ -194,9 +200,18 @@ class Window(QtWidgets.QMainWindow):
         self.render_cal();self.controls()
     def controls(self):
         ready=bool(self.state) and not self.working and not self.device.busy;active=bool(self.state and self.state.get('cal_active'))
+        pending=bool(getattr(self.device,'wifi_pending',None))
         free=not self.working and not self.device.busy
-        self.refresh_btn.setEnabled(free and not active);self.ports.setEnabled(free and not self.state);self.connect_btn.setEnabled(free and not self.state and self.ports.count()>0);self.disconnect_btn.setEnabled(ready)
-        self.flash_btn.setEnabled(free and not active and self.ports.count()>0);self.boards.setEnabled(free and not active)
+        if pending:ready=False
+        self.refresh_btn.setEnabled(free and not active);self.ports.setEnabled(free and not self.state);self.connect_btn.setEnabled(free and not pending and not self.state and self.ports.count()>0);self.disconnect_btn.setEnabled(ready)
+        self.flash_btn.setEnabled(free and not pending and not active and self.ports.count()>0);self.boards.setEnabled(free and not active)
+        r4=(self.ports.currentData() or {}).get('board')=='uno-r4-wifi'
+        self.wifi_update_btn.setEnabled(free and r4 and not active)
+        self.wifi_update_btn.setText('I have reconnected — retry Wi-Fi update' if pending else 'Update R4 Wi-Fi firmware')
+        self.wifi_restore_btn.setVisible(pending);self.wifi_restore_btn.setEnabled(free and pending)
+        if pending:self.wifi_update_hint.setText('Unplug ALL power for five seconds, then reconnect. Restore clock firmware only after this power cycle. If the Wi-Fi update failed, retry it after reconnecting. Recovery is saved if you close the app.')
+        else:self.wifi_update_hint.setText('R4 WiFi only: update the separate Wi-Fi module to qualified version 0.6.1. Internet access is required. The app then guides a full power cycle and restores clock firmware.')
+        self.wifi_version.setText('R4 Wi-Fi module: '+str((self.state or {}).get('wifi_firmware','connect after installing current clock firmware to read version')))
         self.time_page.setEnabled(ready and not active)
         synced=bool(self.state and self.state.get('wifi_connected') and not self.state.get('manual_override') and self.state.get('source')=='ntp')
         self.sync_btn.setEnabled(ready and not active and bool(self.state.get('wifi_supported')) and not synced if self.state else False)
@@ -277,6 +292,20 @@ class Window(QtWidgets.QMainWindow):
     def hold(self):self.cal('target',hour=self.hold_h.value(),minute=self.hold_m.value(),second=self.hold_s.value() if self.state.get('draft_seconds_enabled') else 0)
     def enable_outputs(self):
         if QtWidgets.QMessageBox.question(self,'Enable meters','Have you checked the meter wiring and calibration?')==QtWidgets.QMessageBox.Yes:self.command(dict(action='output',enabled=True))
+    def update_wifi(self):
+        pending=bool(getattr(self.device,'wifi_pending',None))
+        text=('Have you unplugged ALL power for five seconds and reconnected the original R4?' if pending else
+              'Update the R4 Wi-Fi module to 0.6.1? This replaces the current sketch temporarily. Keep USB connected until the update finishes. Then unplug/replug when prompted and restore clock firmware here. Compatible calibration and Wi-Fi settings are retained. Internet access is required.')
+        if QtWidgets.QMessageBox.question(self,'Update R4 Wi-Fi firmware',text)!=QtWidgets.QMessageBox.Yes:return
+        row=self.ports.currentData()
+        def done(_):
+            self.state=None;self.clock_epoch=None;self.connection.setText('Updating R4 Wi-Fi module…');self.tabs.setCurrentWidget(self.flash_page)
+        self.run(lambda:self.device.update_wifi(row['port'],retrying=pending),done)
+    def restore_wifi(self):
+        if QtWidgets.QMessageBox.question(self,'Confirm power cycle','Have you unplugged ALL power for five seconds and reconnected the original R4? Never restore while the board is in ESP download mode.')!=QtWidgets.QMessageBox.Yes:return
+        self.after_flash=('status',);self.flash_port=(getattr(self.device,'wifi_pending',None) or {}).get('port')
+        def done(_):self.state=None;self.connection.setText('Restoring clock firmware…')
+        self.run(lambda:self.device.restore_clock(power_cycled=True),done)
     def flash(self,after=None):
         text='Replace the Arduino sketch with clock firmware? Compatible saved calibration and Wi-Fi settings are retained.'
         if after:text+=' Then reconnect automatically and '+('disconnect Wi-Fi to search for networks.' if after[0]=='scan' else 'apply the selected timezone.' if after[0] in ('zone','time') else 'start calibration or the selected sweep.')
@@ -296,6 +325,7 @@ class Window(QtWidgets.QMainWindow):
                 if time.monotonic()>=deadline:raise RuntimeError('Firmware installed. Refresh USB devices and connect to finish.')
                 time.sleep(.25)
             status=self.device.connect(row['port'])
+            if action[0]=='status':return status
             if action[0]=='scan':
                 if not status.get('wifi_scan_disconnect_supported'):raise RuntimeError('Update did not enable Wi-Fi scanning. Check the firmware version.')
                 return self.device.scan_networks(),self.device.command(dict(action='status'))
@@ -312,7 +342,10 @@ class Window(QtWidgets.QMainWindow):
         self.run(work,done)
     def poll_job(self):
         job=self.device.job_state()
+        if self.device.busy and job['state']!='running':return
         if job['state']=='running':self.log.setPlainText(job['log']);self.controls()
+        elif job['state']=='reconnect':
+            self.log.setPlainText(job['log']);self.notice.setText('Unplug all power for five seconds, reconnect, then restore clock firmware below.');self.connection.setText('Waiting for power cycle');self.controls()
         elif job['state'] in ['done','error'] and job['log']!=self.log.toPlainText():
             self.log.setPlainText(job['log']);self.notice.setText('Firmware installed. Refresh USB devices, then Connect.' if job['state']=='done' else 'Firmware installation failed. See the log.');self.controls()
             after=self.after_flash;self.after_flash=None
@@ -335,8 +368,9 @@ def main():
     if args.self_test:
         assert (ROOT/'firmware/AmmeterClock/AmmeterClock.ino').is_file()
         result=run_cli([find_cli(),'version'],capture_output=True,text=True,check=True,timeout=30)
+        updater=run_cli([find_uploader(__import__('app').BUNDLE,ROOT),'version'],capture_output=True,text=True,check=True,timeout=30)
         window.show();application.processEvents();assert window.connect_btn.text()=='Connect'
-        Path(args.self_test).write_text(json.dumps(dict(frozen=bool(getattr(sys,'frozen',False)),cli=result.stdout.strip(),ui='native-qt',version=VERSION)))
+        Path(args.self_test).write_text(json.dumps(dict(frozen=bool(getattr(sys,'frozen',False)),cli=result.stdout.strip(),ui='native-qt',version=VERSION,wifi_updater=updater.stdout.strip())))
         window.close();return
     window.show();sys.exit(application.exec())
 if __name__=='__main__':main()

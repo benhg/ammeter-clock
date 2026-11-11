@@ -41,3 +41,7 @@ searchable IANA zones with saved daylight-saving transitions, editable custom
 offsets, and 5–600 second meter sweeps. Resume NTP is disabled while already active.
 
 Before shipping assembled clocks, follow the [pre-shipment test checklist](docs/PRE-SHIP-TEST.md), including the separate R4 Wi-Fi firmware update and cold-start NTP verification.
+
+Desktop app 0.6.0 adds the R4 Wi-Fi module updater: install qualified connectivity
+firmware, follow the power-cycle prompt, and restore/verify clock firmware from the
+same app. Recovery survives closing and reopening the app.

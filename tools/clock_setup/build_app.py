@@ -8,6 +8,7 @@ import sys
 import tarfile
 import zipfile
 from download_cli import download
+from download_fwuploader import download as download_fwuploader
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -19,6 +20,7 @@ def main():
     staging.mkdir(parents=True,exist_ok=True)
     binary = ROOT/'.tools/package-bin'
     download(binary)
+    download_fwuploader(binary)
     args = [sys.executable,'-m','PyInstaller','--noconfirm','--clean','--onedir',
             '--name','KN6UBF Clock Setup','--distpath',str(staging),
             '--workpath',str(ROOT/'.build-clock'),'--specpath',str(ROOT/'.build-clock'),
@@ -26,6 +28,8 @@ def main():
             '--add-data',f'{ROOT/"firmware/AmmeterClock"}:firmware/AmmeterClock',
             '--add-binary',f'{binary/("arduino-cli.exe" if platform.system()=="Windows" else "arduino-cli")}:bin',
             '--add-data',f'{binary/"ARDUINO-CLI-LICENSE.txt"}:bin',
+            '--add-binary',f'{binary/("arduino-fwuploader.exe" if platform.system()=="Windows" else "arduino-fwuploader")}:bin',
+            '--add-data',f'{binary/"ARDUINO-FWUPLOADER-LICENSE.txt"}:bin',
             '--add-data',f'{ROOT/"tools/clock_setup/licenses"}:licenses']
     if platform.system() in ('Darwin','Windows'): args += ['--windowed']
     if platform.system()=='Darwin': args += ['--osx-bundle-identifier','cloud.glick.kn6ubf-clock-setup']

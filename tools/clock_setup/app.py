@@ -10,6 +10,7 @@ import sys
 import tempfile
 import threading
 import time
+import wifi_update
 
 ROOT = Path(__file__).resolve().parents[2]
 BUNDLE = Path(getattr(sys, "_MEIPASS", ROOT))
@@ -112,7 +113,9 @@ def make_command(data):
 
 
 class Device:
-    def __init__(self):
+    def __init__(self, update_path=None):
+        self.update_path = Path(update_path) if update_path is not None else wifi_update.state_path()
+        self.wifi_pending = wifi_update.load(self.update_path)
         self.lock = threading.RLock()
         self.serial = None
         self.port = None
@@ -134,7 +137,7 @@ class Device:
                 elif port.pid in (0x0043, 0x0001):
                     board = "uno-r3"
             rows.append({"port":port.device,"name":port.description or port.device,
-                         "board":board,"recognized":board is not None})
+                         "board":board,"recognized":board is not None,"serial_number":getattr(port,"serial_number",None)})
         return rows
 
     def close(self):
@@ -230,7 +233,65 @@ class Device:
             if log is not None:
                 self.job["log"] = log[-24000:]
 
+    def update_wifi(self, port, retrying=False):
+        with self.lock:
+            if self.busy or (self.wifi_pending and not retrying):
+                raise RuntimeError('Finish the current firmware operation first')
+            previous=self.wifi_pending
+            if previous:
+                original=wifi_update.match_board(self.boards(),previous)
+                if original['port']!=port:raise RuntimeError('Select the original R4 before retrying')
+            row=next((r for r in self.boards() if r['port']==port),None)
+            if not row or row.get('board')!='uno-r4-wifi':
+                raise ValueError('Wi-Fi firmware updates require a detected Uno R4 WiFi')
+            uploader=wifi_update.find_uploader(BUNDLE,ROOT)
+            if self.serial:
+                status=self.request('STATUS')
+                if self.port!=port:raise RuntimeError('Selected device differs from connected clock')
+                if status.get('cal_active'):raise RuntimeError('Finish calibration before updating Wi-Fi firmware')
+            else:
+                # A factory Arduino may have no clock sketch. Verification then starts
+                # after restoration; never interpret a missing reply as saved settings.
+                try:status=self.connect(port)
+                except RuntimeError:status={}
+                if status.get('cal_active'):raise RuntimeError('Finish calibration before updating Wi-Fi firmware')
+            record={'port':port,'serial_number':row.get('serial_number'),
+                    'target':wifi_update.WIFI_FIRMWARE,
+                    'saved':{k:status[k] for k in wifi_update.CALIBRATION_KEYS if k in status}}
+            if previous:record['saved']=previous.get('saved',{})
+            wifi_update.save(self.update_path,record)
+            self.wifi_pending=record
+            self.close();self.busy=True
+            self.set_job('running','Updating R4 Wi-Fi firmware to '+wifi_update.WIFI_FIRMWARE+'… Keep USB connected.\n')
+        threading.Thread(target=self._update_wifi,args=(uploader,port),daemon=True).start()
+        return {'started':True}
+
+    def _update_wifi(self, uploader, port):
+        log=self.job_state()['log']
+        try:
+            result=run_cli([uploader,'firmware','flash','--fqbn',BOARDS['uno-r4-wifi'][0],
+                           '--address',port,'--module','ESP32-S3@'+wifi_update.WIFI_FIRMWARE],
+                           capture_output=True,text=True,timeout=600)
+            log+=result.stdout+result.stderr
+            if result.returncode:raise RuntimeError('Wi-Fi update failed. Unplug/replug before recovery; do not upload while in ESP download mode.')
+            self.set_job('reconnect',log+'\nWi-Fi update complete. Unplug all power for five seconds, then reconnect. Click Restore clock firmware.\n')
+        except Exception as exc:
+            self.set_job('reconnect',log+'\n'+str(exc)+'\nUnplug all power and reconnect before restoring clock firmware.\n')
+        finally:
+            with self.lock:self.busy=False
+
+    def restore_clock(self, power_cycled=False):
+        with self.lock:
+            if self.busy or not self.wifi_pending:raise RuntimeError('No Wi-Fi update is ready for recovery')
+            if not power_cycled:raise RuntimeError('Unplug all power and reconnect before restoring the clock')
+            row=wifi_update.match_board(self.boards(),self.wifi_pending)
+            self.close();self.busy=True;self.set_job('running','Restoring clock firmware… Keep USB connected.\n')
+        threading.Thread(target=self._flash,args=(row['port'],'uno-r4-wifi',True),daemon=True).start()
+        return {'started':True}
+
     def flash(self, port, board):
+        if self.wifi_pending:
+            raise RuntimeError("Finish the Wi-Fi update unplug/replug step before uploading clock firmware")
         if board not in BOARDS:
             raise ValueError("Choose Uno R3 or Uno R4 WiFi")
         rows = self.boards()
@@ -248,7 +309,7 @@ class Device:
         threading.Thread(target=self._flash, args=(port, board), daemon=True).start()
         return {"started": True}
 
-    def _flash(self, port, board):
+    def _flash(self, port, board, restoring=False):
         log = ""
         try:
             cli = find_cli()
@@ -274,6 +335,22 @@ class Device:
                     self.set_job(log=log)
                     if result.returncode:
                         raise RuntimeError(label + " failed; see the log")
+            if restoring:
+                # Upload has finished; keep other operations locked out until verification.
+                with self.lock:
+                    self.busy = False
+                    try:
+                        status = self.connect(port)
+                    finally:
+                        self.busy = True
+                if status.get('wifi_firmware') != wifi_update.WIFI_FIRMWARE:
+                    raise RuntimeError('Wi-Fi firmware version verification failed; recovery record retained')
+                for key,value in self.wifi_pending.get('saved',{}).items():
+                    if status.get(key) != value:
+                        raise RuntimeError('Saved setting changed: '+key+'; recovery record retained')
+                self.update_path.unlink()
+                self.wifi_pending = None
+                log += '\nWi-Fi firmware verified; saved settings verified. Clock firmware restored.\n'
             self.set_job("done",log + "\nFirmware uploaded. Refresh ports and connect to configure.\n")
         except Exception as exc:
             self.set_job("error",log + "\n" + str(exc))
