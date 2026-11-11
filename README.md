@@ -39,3 +39,5 @@ Developer ID signing and Apple notarization.
 Version 0.5.0 adds a smooth one-second app clock, disconnect-and-search Wi-Fi,
 searchable IANA zones with saved daylight-saving transitions, editable custom
 offsets, and 5–600 second meter sweeps. Resume NTP is disabled while already active.
+
+Before shipping assembled clocks, follow the [pre-shipment test checklist](docs/PRE-SHIP-TEST.md), including the separate R4 Wi-Fi firmware update and cold-start NTP verification.
