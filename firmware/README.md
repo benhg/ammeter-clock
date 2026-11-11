@@ -98,3 +98,28 @@ R3 returns `ERR wifi_not_supported`. Scanning is refused during calibration/swee
 Scan timeout in the host is 45 seconds; a synchronous scan may temporarily delay
 needle/button updates, after which elapsed clock time is caught up. It writes no
 settings, connects to no network, and preserves manual/NTP mode.
+
+## Firmware 0.5.0
+
+`WIFI_SCAN` disconnects the radio first, invalidates outstanding UDP requests, and
+schedules reconnection to saved credentials afterward, including on scan failure.
+USB, calibration, credentials and manual-time override are preserved.
+
+`TEST START [seconds]` and `CAL SWEEP [seconds]` accept durations 5–600 seconds;
+omitting the duration preserves the 61-second pattern. Both endpoints are included.
+An active wizard sweep suspends its idle deadline and resets it upon completion.
+
+Named IANA zones use a host-generated transition schedule. `TZ BEGIN <hex name>
+<from UTC> <until UTC> <initial offset minutes>`, followed by `TZ ADD <UTC epoch>
+<offset minutes>` and `TZ SAVE`, replaces the schedule atomically. `TZ CANCEL`
+abandons the draft. Two 424-byte EEPROM banks start at byte 176; 56 six-byte
+transitions fit in each bank. Headers and transitions are CRC protected; no table is
+kept in SRAM. `ZONE` explicitly clears named-zone banks and restores legacy custom
+US/EU/no-DST behavior. Original settings layout and saved calibration are unchanged.
+
+STATUS advertises timezone/variable-duration/disconnect-scan capabilities and the
+saved zone name. It reports stale schedules. The app supplies at least ten future
+years using pinned tzdata (capped at 2100), and can refresh schedules after legislative
+changes. It checked every one of the 598 included zone IDs, requiring at most 26
+entries for the current generated range. Expired/out-of-range schedules fall back
+to the custom offset; reconnect and save the zone again when stale is reported.

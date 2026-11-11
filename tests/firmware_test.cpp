@@ -104,6 +104,15 @@ int main() {
   send("CAL CANCEL");assert(!calExpired);
   send("CAL BEGIN 0");send("OUTPUT 0");assert(!calActive&&!settings.enabled);
   send("CAL SAVE");assert(Serial.output=="ERR calibration_not_active\n");
+  // Variable durations preserve all endpoints and do not time out an active wizard.
+  send("CAL BEGIN 1");send("CAL TARGET 6 15 45");send("CAL SWEEP 5");
+  fakeNow+=2500;loop();assert(testActive&&testStep==30);
+  fakeNow+=2499;loop();assert(testActive&&testStep==60);
+  fakeNow+=1;loop();assert(!testActive&&calActive&&calHour==6);
+  send("CAL SWEEP 600");fakeNow+=599999;loop();assert(calActive&&testActive&&testStep==60);
+  fakeNow+=1;loop();assert(calActive&&!testActive&&!calExpired);
+  send("CAL CANCEL");send("OUTPUT 1");send("TEST START 120");fakeNow+=60000;loop();assert(testActive&&testStep==30);
+  fakeNow+=60000;loop();assert(!testActive);send("TEST START 4");assert(Serial.output=="ERR test_duration_range\n");
   // A delayed loop must not keep postponing a queued repeat forever.
   hourButton=Button();minuteButton=Button();pendingHour=pendingMinute=false;
   pins[2]=pins[3]=HIGH;loop();pins[2]=LOW;fakeNow+=40;loop();fakeNow+=40;loop();

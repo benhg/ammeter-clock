@@ -35,3 +35,7 @@ the Pololu converter or the DAC's EEPROM power-on state.
 Desktop app / firmware 0.4.0 adds R4 Wi-Fi network search, native password visibility
 control and a dedicated USB connection panel. Customer macOS releases now require
 Developer ID signing and Apple notarization.
+
+Version 0.5.0 adds a smooth one-second app clock, disconnect-and-search Wi-Fi,
+searchable IANA zones with saved daylight-saving transitions, editable custom
+offsets, and 5–600 second meter sweeps. Resume NTP is disabled while already active.

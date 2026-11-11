@@ -69,3 +69,30 @@ repository secrets named in `configure_macos_ci.py`; it imports the .p12 into an
 ephemeral runner keychain, configures notarization, and never prints key material or
 passwords. Do not put .p12/private keys in this repository. Windows signing is not
 configured; Windows reputation warnings are independent of Apple's notarization.
+
+## Version 0.5.0
+
+- The clock display ticks from a monotonic local timer every second between USB
+  status updates, including while another USB operation is running. Status replies
+  correct the display after time changes or reconnects.
+- Connected Wi-Fi shows **Disconnect & search for networks** and an explanation.
+  The firmware disconnects Wi-Fi, scans, then retries the saved network; USB remains
+  open. Older firmware offers **Update firmware & search**, then automatically
+  reconnects USB and scans. The user confirms the firmware replacement first.
+- **Resume Wi-Fi / NTP** is disabled when Wi-Fi is connected and NTP is active,
+  but available when a manual time adjustment has paused automatic synchronization.
+- All 598 zones/aliases in pinned IANA tzdata 2026.6 are searchable. **Custom UTC
+  offset** reveals editable minute-offset and legacy DST controls. Named zones
+  upload UTC offset transitions to two CRC-protected EEPROM banks, preserving the
+  previous zone if an update is interrupted. The generated schedule covers at least
+  ten future years (up to the firmware's 2100 limit). Refresh a named zone after
+  timezone-law changes or when the app reports an expired schedule. The board does
+  not need a connected computer to apply saved transitions. Existing calibration,
+  Wi-Fi settings and legacy custom offsets retain their original EEPROM layout.
+- **Sweep duration** controls both wizard and saved-calibration sweeps, 5–600
+  seconds, including endpoints. Defaults remain 61 seconds. An active sweep does
+  not consume the wizard's idle timeout; the timeout restarts after it finishes.
+
+The included firmware is 0.5.0. Named-zone saving, variable calibration and scanning
+provide combined update/reconnect actions when the attached clock needs an update.
+Custom offset saving continues to work with older firmware without upgrading.

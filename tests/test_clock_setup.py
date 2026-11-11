@@ -50,6 +50,12 @@ class SetupTests(unittest.TestCase):
             with self.assertRaises(ValueError):app.make_command(dict(action='calibration',**values))
         self.assertEqual(app.make_command(dict(action='seconds',enabled=False)),'SECONDS 0')
 
+    def test_variable_sweep_durations(self):
+        self.assertEqual(app.make_command(dict(action='test',operation='start',duration=5)),'TEST START 5')
+        self.assertEqual(app.make_command(dict(action='calibration',operation='sweep',duration=600)),'CAL SWEEP 600')
+        for n in [4,601,True,10.5]:
+            with self.assertRaises(ValueError):app.make_command(dict(action='test',operation='start',duration=n))
+
     def test_serial_framing(self):
         device=app.Device(); device.serial=FakeSerial()
         self.assertEqual(device.request('STATUS'),{'protocol':1})

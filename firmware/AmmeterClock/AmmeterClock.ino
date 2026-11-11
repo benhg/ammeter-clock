@@ -3,6 +3,7 @@
 #include <EEPROM.h>
 #include <stdlib.h>
 #include "ClockCore.h"
+#include "TimeZoneStore.h"
 #if defined(ARDUINO_UNOR4_WIFI)
 #include <WiFiS3.h>
 #include <WiFiUdp.h>
@@ -17,7 +18,7 @@ Button hourButton, minuteButton;
 bool dacReady = false, timeValid = false, manualOverride = false;
 bool testActive = false;
 uint8_t testStep = 0;
-uint32_t testStarted = 0;
+uint32_t testStarted = 0,testDurationMs=61000;
 bool calActive=false,calExpired=false,calSeconds=false;
 uint16_t calHourScale=0,calMinuteScale=0,calSecondScale=0;
 uint8_t calHour=0,calMinute=0,calSecond=0;
@@ -56,9 +57,13 @@ void zeroOutputs() {
   for (uint8_t c = 0; c < 4; ++c) if (!writeDAC(c,0)) ok = false;
   dacReady = ok;
 }
+uint32_t clockLocalEpoch(uint32_t epoch){
+ if(TimeZoneStore::covers(epoch))return epoch+int32_t(TimeZoneStore::offset(epoch))*60;
+ return localEpoch(epoch,settings);
+}
 void updateGauges() {
   if (!dacReady) return;
-  uint32_t local = localEpoch(utcEpoch, settings);
+  uint32_t local = clockLocalEpoch(utcEpoch);
   uint8_t hour = (local / 3600) % 12;
   if (!hour) hour = 12;
   bool drive=settings.enabled&&timeValid&&!calExpired;
@@ -78,8 +83,9 @@ void cancelCalibration(){calActive=false;calExpired=false;testActive=false;updat
 
 void testTick(uint32_t now) {
   if (!testActive) return;
-  uint32_t step = uint32_t(now-testStarted)/1000;
-  if (step > 60) { testActive = false; updateGauges(); }
+  uint32_t elapsed=uint32_t(now-testStarted);
+  uint32_t step=elapsed*61UL/testDurationMs;
+  if (elapsed>=testDurationMs) { testActive = false;if(calActive)calTouched=now;updateGauges(); }
   else if (step != testStep) { testStep = step; updateGauges(); }
 }
 void saveSettings() {
@@ -97,14 +103,14 @@ void setClock(uint32_t epoch, const char *source) {
 void ok() { Serial.println(F("OK {}")); }
 void error(const __FlashStringHelper *message) { Serial.print(F("ERR ")); Serial.println(message); }
 void printStatus() {
-  Serial.print(F("OK {\"protocol\":1,\"firmware\":\"0.4.0\",\"board\":\""));
+  Serial.print(F("OK {\"protocol\":1,\"firmware\":\"0.5.0\",\"board\":\""));
 #if CLOCK_WIFI
   Serial.print(F("uno-r4-wifi"));
 #else
   Serial.print(F("uno-r3"));
 #endif
   Serial.print(F("\",\"epoch\":")); Serial.print(utcEpoch);
-  Serial.print(F(",\"local_epoch\":")); Serial.print(localEpoch(utcEpoch,settings));
+  Serial.print(F(",\"local_epoch\":")); Serial.print(clockLocalEpoch(utcEpoch));
   Serial.print(F(",\"time_valid\":")); Serial.print(timeValid ? F("true") : F("false"));
   Serial.print(F(",\"source\":\"")); Serial.print(timeSource);
   Serial.print(F("\",\"manual_override\":")); Serial.print(manualOverride ? F("true") : F("false"));
@@ -130,6 +136,9 @@ void printStatus() {
   Serial.print(F(",\"minute_scale\":")); Serial.print(settings.minuteScale);
   Serial.print(F(",\"offset\":")); Serial.print(settings.offsetMinutes);
   Serial.print(F(",\"dst\":")); Serial.print(settings.dst);
+  Serial.print(F(",\"test_duration_supported\":true,\"timezone_supported\":true,\"timezone_name\":\""));Serial.print(TimeZoneStore::active>=0?TimeZoneStore::current.name:"");
+  Serial.print(F("\",\"timezone_stale\":"));Serial.print(TimeZoneStore::active>=0&&!TimeZoneStore::covers(utcEpoch)?F("true"):F("false"));
+  Serial.print(F(",\"wifi_scan_disconnect_supported\":"));Serial.print(CLOCK_WIFI?F("true"):F("false"));
   Serial.print(F(",\"wifi_scan_supported\":")); Serial.print(CLOCK_WIFI ? F("true") : F("false"));
   Serial.print(F(",\"wifi_supported\":")); Serial.print(CLOCK_WIFI ? F("true") : F("false"));
   Serial.print(F(",\"wifi_configured\":")); Serial.print(settings.ssid[0] ? F("true") : F("false"));
@@ -174,7 +183,7 @@ void calibrationCommand(char *context){
     calHour=x;calMinute=y;calSecond=z;testActive=false;
   }else if(!strcmp(op,"SCALE")&&number(a,1,4095,x)&&number(b,1,4095,y)&&number(c,1,4095,z)){
     calHourScale=x;calMinuteScale=y;calSecondScale=z;
-  }else if(!strcmp(op,"SWEEP")&&!a){testActive=true;testStep=0;testStarted=millis();
+  }else if(!strcmp(op,"SWEEP")&&!b&&(!a||number(a,5,600,x))){testDurationMs=(a?x:61)*1000UL;testActive=true;testStep=0;testStarted=millis();
   }else if(!strcmp(op,"SAVE")&&!a){
     if(!dacReady){error(F("dac_unavailable"));return;}
     settings.hourScale=calHourScale;settings.minuteScale=calMinuteScale;settings.secondScale=calSecondScale;
@@ -182,9 +191,25 @@ void calibrationCommand(char *context){
   }else{error(F("invalid_calibration_command"));return;}
   calTouched=millis();updateGauges();ok();
 }
+void timezoneCommand(char* context){
+ char*op=strtok_r(nullptr," ",&context);char*a=strtok_r(nullptr," ",&context);char*b=strtok_r(nullptr," ",&context);char*c=strtok_r(nullptr," ",&context);char*d=strtok_r(nullptr," ",&context);char*extra=strtok_r(nullptr," ",&context);
+ if(!op||extra){error(F("invalid_timezone_command"));return;}
+ if(!strcmp(op,"CANCEL")&&!a){TimeZoneStore::pending=-1;ok();return;}
+ if(!strcmp(op,"BEGIN")&&a&&b&&c&&d){
+  char name[64]={};char*e1;char*e2;char*e3;unsigned long from=strtoul(b,&e1,10),until=strtoul(c,&e2,10);long off=strtol(d,&e3,10);
+  if(from<MAX_EPOCH&&until<=MAX_EPOCH&&!*e1&&!*e2&&!*e3&&b[0]!='-'&&c[0]!='-'&&off>=-720&&off<=840&&decodeHex(a,name,sizeof(name))&&TimeZoneStore::begin(name,from,until,off)){ok();return;}
+ }else if(!strcmp(op,"ADD")&&a&&b&&!c){
+  char*e1;char*e2;unsigned long epoch=strtoul(a,&e1,10);long off=strtol(b,&e2,10);
+  if(epoch<MAX_EPOCH&&!*e1&&!*e2&&a[0]!='-'&&off>=-720&&off<=840&&TimeZoneStore::add(epoch,off)){ok();return;}
+ }else if(!strcmp(op,"SAVE")&&!a&&TimeZoneStore::commit()){
+  settings.offsetMinutes=TimeZoneStore::offset(utcEpoch);settings.dst=0;saveSettings();updateGauges();ok();return;
+ }
+ error(F("invalid_timezone_command"));
+}
 void command(char *line) {
   char *context;
   char *cmd = strtok_r(line," ",&context);
+  if(cmd&&!strcmp(cmd,"TZ")){timezoneCommand(context);return;}
   if(cmd&&!strcmp(cmd,"CAL")){calibrationCommand(context);return;}
   char *a = strtok_r(nullptr," ",&context);
   char *b = strtok_r(nullptr," ",&context);
@@ -198,7 +223,7 @@ void command(char *line) {
     manualOverride = true; setClock(epoch,"usb"); ok(); return;
   }
   if (!strcmp(cmd,"ZONE") && !extra && number(a,-720,840,x) && number(b,0,2,y)) {
-    settings.offsetMinutes = x; settings.dst = y; saveSettings(); updateGauges(); ok(); return;
+    TimeZoneStore::clear();settings.offsetMinutes = x; settings.dst = y; saveSettings(); updateGauges(); ok(); return;
   }
   if (!strcmp(cmd,"SCALE") && !extra && number(a,1,4095,x) && number(b,1,4095,y)) {
     if(calActive){error(F("finish_calibration_first"));return;}
@@ -215,9 +240,11 @@ void command(char *line) {
     if(calActive){error(F("finish_calibration_first"));return;}
     settings.secondsEnabled=x;saveSettings();updateGauges();ok();return;
   }
-  if (!strcmp(cmd,"TEST") && a && !b) {
-    if (!strcmp(a,"STOP")) { testActive = false; updateGauges(); ok(); return; }
+  if (!strcmp(cmd,"TEST") && a && !extra) {
+    if (!strcmp(a,"STOP")&&!b) { testActive = false; updateGauges(); ok(); return; }
     if (!strcmp(a,"START")) {
+      if(b&&!number(b,5,600,x)){error(F("test_duration_range"));return;}
+      testDurationMs=(b?x:61)*1000UL;
       if(calActive){error(F("use_calibration_sweep"));return;}
       if (!dacReady) { error(F("dac_unavailable")); return; }
       if (!settings.enabled) { error(F("enable_meters_first")); return; }
@@ -230,6 +257,8 @@ void command(char *line) {
   if (!strcmp(cmd,"WIFI_SCAN") && !a) {
 #if CLOCK_WIFI
     if(calActive||testActive){error(F("finish_meter_test_first"));return;}
+    udp.stop();udpReady=false;ntpWaiting=false;ntpDue=true;
+    WiFi.disconnect();wifiState=WL_IDLE_STATUS;lastAttempt=millis()-60000UL;
     int count=WiFi.scanNetworks();
     if(count<0){error(F("wifi_scan_failed"));return;}
     Serial.print(F("OK {\"networks\":["));
@@ -346,6 +375,7 @@ void networkTick(uint32_t now) {
 void setup() {
   Serial.begin(115200); pinMode(2,INPUT_PULLUP); pinMode(3,INPUT_PULLUP); Wire.begin();
   EEPROM.get(0,settings);if(!valid(settings)){SettingsV1 old;EEPROM.get(0,old);if(!migrate(old,settings))settings=defaults();}
+  TimeZoneStore::load();
   zeroOutputs(); lastTick = millis(); updateGauges();
 #if CLOCK_WIFI
   randomSeed(micros()); lastAttempt = millis()-60000UL;
@@ -358,7 +388,7 @@ void loop() {
   if (elapsed) { utcEpoch += elapsed; lastTick += elapsed*1000; updateGauges(); }
   readCommands();
   now = millis();
-  if(calActive&&uint32_t(now-calTouched)>=600000UL){calActive=false;testActive=false;calExpired=true;updateGauges();}
+  if(calActive&&!testActive&&uint32_t(now-calTouched)>=600000UL){calActive=false;testActive=false;calExpired=true;updateGauges();}
   bool h=hourButton.poll(digitalRead(2)==LOW,now),m=minuteButton.poll(digitalRead(3)==LOW,now);
   bool both=digitalRead(2)==LOW&&digitalRead(3)==LOW;
   if(both){
@@ -382,7 +412,7 @@ void loop() {
       if(h)pendingHour=false;if(m)pendingMinute=false;
       cancelCalibration();
       if(!timeValid){utcEpoch=MIN_EPOCH-int32_t(settings.offsetMinutes)*60;timeValid=true;}
-      utcEpoch-=localEpoch(utcEpoch,settings)%60;
+      utcEpoch-=clockLocalEpoch(utcEpoch)%60;
       if(h)utcEpoch+=3600;if(m)utcEpoch+=60;manualOverride=true;
 #if CLOCK_WIFI
       ntpWaiting=false;

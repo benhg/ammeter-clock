@@ -75,7 +75,8 @@ def make_command(data):
     if action == "test":
         if data.get("operation") not in ("start", "stop"):
             raise ValueError("Choose start or stop")
-        return "TEST " + data["operation"].upper()
+        duration=f" {integer(data,'duration',5,600)}" if data["operation"]=="start" and "duration" in data else ""
+        return "TEST " + data["operation"].upper()+duration
     if action == "seconds":
         if type(data.get("enabled")) is not bool: raise ValueError("enabled must be a boolean")
         return f"SECONDS {int(data['enabled'])}"
@@ -84,7 +85,9 @@ def make_command(data):
         if operation == "begin":
             if type(data.get("seconds")) is not bool: raise ValueError("seconds must be a boolean")
             return f"CAL BEGIN {int(data['seconds'])}"
-        if operation in ("cancel", "save", "sweep"): return "CAL " + operation.upper()
+        if operation in ("cancel", "save", "sweep"):
+            duration=f" {integer(data,'duration',5,600)}" if operation=="sweep" and "duration" in data else ""
+            return "CAL " + operation.upper()+duration
         if operation == "target":
             return f"CAL TARGET {integer(data,'hour',0,12)} {integer(data,'minute',0,60)} {integer(data,'second',0,60)}"
         if operation == "scale":
@@ -187,6 +190,22 @@ class Device:
                 raise RuntimeError("Flashing is in progress")
             self.request(command) if command != "STATUS" else None
             return self.request("STATUS")
+
+    def set_timezone(self, name):
+        from timezones import schedule
+        plan=schedule(name,int(time.time()))
+        with self.lock:
+            if self.busy:raise RuntimeError("Flashing is in progress")
+            try:
+                self.request(f"TZ BEGIN {name.encode().hex()} {plan['start']} {plan['until']} {plan['offset']}")
+                for epoch,offset in plan['changes']:self.request(f"TZ ADD {epoch} {offset}")
+                self.request('TZ SAVE')
+            except Exception:
+                if self.serial:
+                    try:self.request('TZ CANCEL')
+                    except Exception:pass
+                raise
+            return self.request('STATUS')
 
     def scan_networks(self):
         with self.lock:

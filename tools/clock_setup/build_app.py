@@ -22,7 +22,7 @@ def main():
     args = [sys.executable,'-m','PyInstaller','--noconfirm','--clean','--onedir',
             '--name','KN6UBF Clock Setup','--distpath',str(staging),
             '--workpath',str(ROOT/'.build-clock'),'--specpath',str(ROOT/'.build-clock'),
-            '--hidden-import','serial','--collect-submodules','serial',
+            '--collect-all','tzdata','--hidden-import','serial','--collect-submodules','serial',
             '--add-data',f'{ROOT/"firmware/AmmeterClock"}:firmware/AmmeterClock',
             '--add-binary',f'{binary/("arduino-cli.exe" if platform.system()=="Windows" else "arduino-cli")}:bin',
             '--add-data',f'{binary/"ARDUINO-CLI-LICENSE.txt"}:bin',

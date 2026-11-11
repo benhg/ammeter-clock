@@ -8,7 +8,7 @@ uint32_t fakeNow=0;int pins[4]={HIGH,HIGH,HIGH,HIGH};SerialMock Serial;WireMock 
 #include "../firmware/AmmeterClock/AmmeterClock.ino"
 void send(const std::string&s){Serial.output.clear();Serial.input=s+"\n";while(Serial.available())readCommands();}
 int main(){
- setup();send("WIFI_SCAN");assert(Serial.output.find("5465737420224e6574776f726b22")!=std::string::npos);assert(Serial.output.find("\"open\":true")!=std::string::npos);WiFi.scanCount=-1;send("WIFI_SCAN");assert(Serial.output=="ERR wifi_scan_failed\n");WiFi.scanCount=2;strcpy(settings.ssid,"test");send("TIME 1793215800");send("SECONDS 1");send("OUTPUT 1");
+ setup();send("WIFI_SCAN");assert(WiFi.scannedDisconnected);assert(Serial.output.find("5465737420224e6574776f726b22")!=std::string::npos);assert(Serial.output.find("\"open\":true")!=std::string::npos);WiFi.scanCount=-1;send("WIFI_SCAN");assert(Serial.output=="ERR wifi_scan_failed\n");WiFi.scanCount=2;strcpy(settings.ssid,"test");send("TIME 1793215800");send("SECONDS 1");send("OUTPUT 1");
  auto writes=EEPROM.writes;auto epoch=utcEpoch;auto hour=settings.hourScale;auto minute=settings.minuteScale;
  // Slightly staggered physical press: grace period suppresses individual changes.
  pins[2]=LOW;loop();fakeNow+=40;loop();pins[3]=LOW;fakeNow+=60;loop();
@@ -16,7 +16,7 @@ int main(){
  fakeNow+=1;loop();assert(!manualOverride&&ntpDue&&chordFired);
  assert(EEPROM.writes==writes&&settings.hourScale==hour&&settings.minuteScale==minute);
  assert(utcEpoch==epoch+3);pins[2]=HIGH;pins[3]=HIGH;fakeNow+=50;loop();
- assert(ntpWaiting&&udp.sends==1);
+ fakeNow+=250;loop();assert(ntpWaiting&&udp.sends==1);
  // Accept a matching NTP reply and route the seconds fraction to DAC B.
  udp.incoming.assign(48,0);udp.incoming[0]=0x24;udp.incoming[1]=1;
  memcpy(udp.incoming.data()+24,ntpCookie,8);

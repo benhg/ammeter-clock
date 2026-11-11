@@ -4,8 +4,9 @@ import argparse,json,sys,time
 from pathlib import Path
 from PySide6 import QtCore,QtWidgets
 from app import Device,ROOT,find_cli,run_cli
+from timezones import zone_names
 
-VERSION='0.4.0'
+VERSION='0.5.0'
 class WorkSignals(QtCore.QObject):
     done=QtCore.Signal(object,object)
 class Work(QtCore.QRunnable):
@@ -22,7 +23,7 @@ def spin(low,high,value):
 
 class Window(QtWidgets.QMainWindow):
     def __init__(self,device=None,auto_refresh=True):
-        super().__init__();self.device=device or Device();self.state=None;self.working=False;self.worker=None;self.step=0;self.closing=False;self.polling=False
+        super().__init__();self.device=device or Device();self.state=None;self.working=False;self.worker=None;self.step=0;self.closing=False;self.polling=False;self.clock_epoch=None;self.clock_received=0;self.after_flash=None;self.flash_port=None
         self.setWindowTitle('KN6UBF Clock Setup');self.resize(900,810)
         root=QtWidgets.QWidget();self.setCentralWidget(root);layout=QtWidgets.QVBoxLayout(root)
         title=label('KN6UBF · Clock Setup');font=title.font();font.setPointSize(22);title.setFont(font);layout.addWidget(title)
@@ -38,16 +39,22 @@ class Window(QtWidgets.QMainWindow):
         self.clock=label('— : — : —');f=self.clock.font();f.setPointSize(32);self.clock.setFont(f);self.time_layout.addWidget(self.clock)
         self.clock_status=label('Connect to read the clock.');self.time_layout.addWidget(self.clock_status)
         zone=QtWidgets.QFormLayout();zone.setFieldGrowthPolicy(QtWidgets.QFormLayout.AllNonFixedFieldsGrow);self.zone=QtWidgets.QComboBox()
-        for text,data in [('Pacific · US daylight saving',(-480,1)),('Mountain · US daylight saving',(-420,1)),('Central · US daylight saving',(-360,1)),('Eastern · US daylight saving',(-300,1)),('UTC',(0,0)),('Custom',None)]:self.zone.addItem(text,data)
+        self.zone.setEditable(True);self.zone.setInsertPolicy(QtWidgets.QComboBox.NoInsert)
+        for name in zone_names():self.zone.addItem(name,name)
+        self.zone.addItem('Custom UTC offset',None)
+        self.zone.setCurrentIndex(self.zone.findData('America/Los_Angeles'))
+        self.zone.completer().setFilterMode(QtCore.Qt.MatchContains);self.zone.completer().setCaseSensitivity(QtCore.Qt.CaseInsensitive)
         self.offset=spin(-720,840,-480);self.dst=QtWidgets.QComboBox();self.dst.addItems(['No daylight saving','US daylight saving','EU daylight saving'])
-        zone.addRow('Timezone',self.zone);zone.addRow('UTC offset (minutes)',self.offset);zone.addRow('Daylight saving',self.dst);self.time_layout.addLayout(zone)
-        self.zone.currentIndexChanged.connect(self.zone_changed);self.zone_changed()
+        zone.addRow('Timezone',self.zone);zone.addRow('UTC offset (minutes)',self.offset);zone.addRow('Daylight saving',self.dst);self.zone_form=zone;self.time_layout.addLayout(zone)
+        self.time_layout.addWidget(label('City time zones include daylight-saving rules. Choose Custom UTC offset to enter an offset manually.'))
+        self.zone.currentIndexChanged.connect(self.zone_changed);self.zone.currentTextChanged.connect(self.zone_changed);self.zone_changed()
         self.time_btn=self.button('Set from computer',self.set_time);self.zone_btn=self.button('Save timezone',self.save_zone);self.sync_btn=self.button('Resume Wi-Fi / NTP',lambda:self.command({'action':'sync'}))
         self.time_layout.addWidget(self.time_btn);self.time_layout.addWidget(self.zone_btn);self.time_layout.addWidget(self.sync_btn)
         self.time_layout.addWidget(label('HOUR / MINUTE buttons advance time; hold to repeat. On R4, hold both for 3 seconds to resume NTP.'))
         self.time_layout.addStretch()
         self.wifi_page,self.wifi_layout=self.page('Wi-Fi')
         self.wifi_status=label('Wi-Fi requires an Uno R4 WiFi.');self.wifi_layout.addWidget(self.wifi_status)
+        self.scan_hint=label('Connect an R4 WiFi to search for networks.');self.wifi_layout.addWidget(self.scan_hint)
         self.scan_btn=self.button('Search nearby networks',self.scan);self.wifi_layout.addWidget(self.scan_btn)
         form=QtWidgets.QFormLayout();form.setFieldGrowthPolicy(QtWidgets.QFormLayout.AllNonFixedFieldsGrow);self.ssid=QtWidgets.QComboBox();self.ssid.setEditable(True);self.ssid.setInsertPolicy(QtWidgets.QComboBox.NoInsert);form.addRow('Network name',self.ssid)
         self.password=QtWidgets.QLineEdit();self.password.setEchoMode(QtWidgets.QLineEdit.Password);form.addRow('Password',self.password);self.wifi_layout.addLayout(form)
@@ -66,12 +73,13 @@ class Window(QtWidgets.QMainWindow):
         self.amount.setCurrentIndex(1);a.addWidget(self.lower);a.addWidget(self.higher);a.addWidget(self.amount);self.cal_layout.addWidget(self.adjust)
         self.verify=QtWidgets.QGroupBox('Test fixed values or sweep');v=QtWidgets.QGridLayout(self.verify);self.hold_h=spin(0,12,6);self.hold_m=spin(0,60,15);self.hold_s=spin(0,60,45)
         for i,(name,w) in enumerate([('Hours',self.hold_h),('Minutes',self.hold_m),('Seconds',self.hold_s)]):v.addWidget(label(name),0,i);v.addWidget(w,1,i)
-        self.hold_btn=self.button('Hold these values',self.hold);self.sweep_btn=self.button('Sweep all meters',lambda:self.cal('sweep'));self.stop_btn=self.button('Stop sweep / hold values',self.hold)
+        self.hold_btn=self.button('Hold these values',self.hold);self.sweep_btn=self.button('Sweep all meters',lambda:self.cal('sweep',duration=self.sweep_seconds.value()));self.stop_btn=self.button('Stop sweep / hold values',self.hold)
         v.addWidget(self.hold_btn,2,0);v.addWidget(self.sweep_btn,2,1);v.addWidget(self.stop_btn,2,2);self.cal_layout.addWidget(self.verify)
         nav=QtWidgets.QHBoxLayout();self.back=self.button('Back',lambda:self.go(self.step-1));self.next=self.button('Next',lambda:self.go(self.step+1));self.save=self.button('Save & run clock',lambda:self.cal('save'));self.cancel=self.button('Cancel · discard changes',lambda:self.cal('cancel'))
         for w in [self.back,self.next,self.save,self.cancel]:nav.addWidget(w)
         self.cal_layout.addLayout(nav);self.cal_layout.addWidget(label('Only Save writes calibration. Cancel restores prior settings. After ten idle minutes outputs are held at zero.'))
-        self.enable=self.button('Enable live meters',self.enable_outputs);self.disable=self.button('Disable meters',lambda:self.command({'action':'output','enabled':False}));self.test=self.button('Run saved calibration sweep',lambda:self.command({'action':'test','operation':'start'}));self.test_stop=self.button('Stop test',lambda:self.command({'action':'test','operation':'stop'}))
+        timing=QtWidgets.QHBoxLayout();timing.addWidget(label('Sweep duration'));self.sweep_seconds=spin(5,600,61);self.sweep_seconds.setSuffix(' seconds');timing.addWidget(self.sweep_seconds);self.cal_layout.addLayout(timing)
+        self.enable=self.button('Enable live meters',self.enable_outputs);self.disable=self.button('Disable meters',lambda:self.command({'action':'output','enabled':False}));self.test=self.button('Run saved calibration sweep',self.start_sweep);self.test_stop=self.button('Stop test',lambda:self.command({'action':'test','operation':'stop'}))
         for w in [self.enable,self.disable,self.test,self.test_stop]:self.cal_layout.addWidget(w)
         self.cal_layout.addStretch()
         self.flash_page,self.flash_layout=self.page('Install / update firmware')
@@ -80,6 +88,7 @@ class Window(QtWidgets.QMainWindow):
         self.log=QtWidgets.QPlainTextEdit();self.log.setReadOnly(True);self.flash_layout.addWidget(self.log)
         self.footer=label('Native desktop app · '+VERSION);layout.addWidget(self.footer)
         self.timer=QtCore.QTimer(self);self.timer.timeout.connect(self.poll);self.timer.start(2500)
+        self.clock_timer=QtCore.QTimer(self);self.clock_timer.timeout.connect(self.tick_clock);self.clock_timer.start(100)
         self.job_timer=QtCore.QTimer(self);self.job_timer.timeout.connect(self.poll_job);self.job_timer.start(500)
         self.ports.currentIndexChanged.connect(self.select_board);self.controls()
         if auto_refresh:QtCore.QTimer.singleShot(0,self.refresh)
@@ -128,33 +137,59 @@ class Window(QtWidgets.QMainWindow):
             with self.device.lock:
                 if self.state and self.state.get('cal_active'):self.device.command(dict(action='calibration',operation='cancel'))
                 self.device.close()
-        def done(_):self.state=None;self.connection.setText('Disconnected');self.password.clear()
+        def done(_):self.state=None;self.clock_epoch=None;self.clock.setText('— : — : —');self.connection.setText('Disconnected');self.password.clear()
         self.run(work,done,'Disconnected.')
     def command(self,data,after=None,message=None):
         def done(s):
             self.render(s)
             if after:after(s)
         self.run(lambda:self.device.command(data),done,message)
-    def zone_changed(self):
-        data=self.zone.currentData();custom=data is None
-        if data:self.offset.setValue(data[0]);self.dst.setCurrentIndex(data[1])
+    def selected_zone(self):
+        text=self.zone.currentText()
+        if text=='Custom UTC offset':return None
+        if text not in self.names:raise ValueError('Choose a timezone from the list, or Custom UTC offset.')
+        return text
+    @property
+    def names(self):return zone_names()
+    def zone_changed(self,*_):
+        custom=self.zone.currentText()=='Custom UTC offset'
         self.offset.setEnabled(custom);self.dst.setEnabled(custom)
+        for w in [self.offset,self.dst]:w.setVisible(custom);self.zone_form.labelForField(w).setVisible(custom)
+        self.controls() if hasattr(self,'scan_btn') and hasattr(self,'flash_btn') else None
     def zone_data(self):return dict(action='zone',offset=self.offset.value(),dst=self.dst.currentIndex())
-    def save_zone(self):self.command(self.zone_data(),message='Timezone saved.')
+    def apply_zone(self,name,custom):
+        return self.device.set_timezone(name) if name else self.device.command(custom)
+    def save_zone(self):
+        try:name=self.selected_zone()
+        except ValueError as e:self.notice.setText(str(e));return
+        if name and not self.state.get('timezone_supported'):self.flash(('zone',name));return
+        custom=self.zone_data();self.run(lambda:self.apply_zone(name,custom),self.render,'Timezone saved on the clock.')
     def set_time(self):
-        zone=self.zone_data()
-        def work():self.device.command(zone);return self.device.command(dict(action='time',epoch=int(time.time())))
+        try:name=self.selected_zone()
+        except ValueError as e:self.notice.setText(str(e));return
+        if name and not self.state.get('timezone_supported'):self.flash(('time',name));return
+        custom=self.zone_data()
+        def work():self.apply_zone(name,custom);return self.device.command(dict(action='time',epoch=int(time.time())))
         self.run(work,self.render,'Clock set from this computer. NTP paused until Resume NTP or the button gesture.')
+    def tick_clock(self):
+        if self.state and self.state.get('time_valid') and self.clock_epoch is not None:
+            epoch=int(self.clock_epoch+max(0,time.monotonic()-self.clock_received))
+            self.clock.setText(time.strftime('%H:%M:%S',time.gmtime(epoch)))
+        else:self.clock.setText('— : — : —')
     def render(self,s,load=False):
         self.state=s;self.connection.setText('Connected · '+s['board']+' · firmware '+s.get('firmware','unknown'))
-        self.clock.setText(time.strftime('%H:%M:%S',time.gmtime(s['local_epoch'])) if s.get('time_valid') else '— : — : —')
+        now=time.monotonic()
+        if not s.get('time_valid'):self.clock_epoch=None
+        elif self.clock_epoch is None or load or abs(s['local_epoch']-(self.clock_epoch+now-self.clock_received))>1.5:self.clock_epoch=s['local_epoch'];self.clock_received=now
+        self.tick_clock()
         self.clock_status.setText(('NTP paused · manually set' if s.get('manual_override') else 'Time source: '+s.get('source','unset'))+' · '+('Meters enabled' if s.get('enabled') else 'Meters disabled'))
         if s.get('cal_timeout'):self.notice.setText('Calibration timed out. Outputs held at zero. Start again or enable meters.')
         self.wifi_status.setText('Wi-Fi connected' if s.get('wifi_connected') else 'Network saved; waiting for connection' if s.get('wifi_configured') else 'No network configured')
-        if s.get('wifi_supported') and not s.get('wifi_scan_supported'):self.wifi_status.setText(self.wifi_status.text()+' · Update firmware to 0.4.0 for network search.')
+        if s.get('timezone_stale'):self.notice.setText('Refresh the saved timezone schedule from this app.')
         if load:
             self.seconds.setChecked(bool(s.get('seconds_enabled')));self.offset.setValue(s.get('offset',0));self.dst.setCurrentIndex(s.get('dst',0))
-            index=next((i for i in range(self.zone.count()) if self.zone.itemData(i)==(s.get('offset'),s.get('dst'))),self.zone.count()-1);self.zone.setCurrentIndex(index);self.zone_changed()
+            name=s.get('timezone_name') or {(-480,1):'America/Los_Angeles',(-420,1):'America/Denver',(-360,1):'America/Chicago',(-300,1):'America/New_York',(0,0):'UTC'}.get((s.get('offset'),s.get('dst')))
+            self.zone.setCurrentIndex(self.zone.findData(name) if name else self.zone.count()-1);self.zone_changed()
             if s.get('cal_active'):self.step=len(self.steps())-1
         self.render_cal();self.controls()
     def controls(self):
@@ -163,11 +198,25 @@ class Window(QtWidgets.QMainWindow):
         self.refresh_btn.setEnabled(free and not active);self.ports.setEnabled(free and not self.state);self.connect_btn.setEnabled(free and not self.state and self.ports.count()>0);self.disconnect_btn.setEnabled(ready)
         self.flash_btn.setEnabled(free and not active and self.ports.count()>0);self.boards.setEnabled(free and not active)
         self.time_page.setEnabled(ready and not active)
+        synced=bool(self.state and self.state.get('wifi_connected') and not self.state.get('manual_override') and self.state.get('source')=='ntp')
+        self.sync_btn.setEnabled(ready and not active and bool(self.state.get('wifi_supported')) and not synced if self.state else False)
+        self.sync_btn.setToolTip('Wi-Fi and NTP are already active.' if synced else 'Resume automatic network time.')
+        custom=self.zone.currentText()=='Custom UTC offset'
+        self.offset.setEnabled(custom);self.dst.setEnabled(custom)
+        upgrade=not custom and bool(self.state) and not self.state.get('timezone_supported')
+        self.zone_btn.setText('Update firmware & save timezone' if upgrade else 'Save timezone')
+        self.time_btn.setText('Update firmware & set time' if upgrade else 'Set from computer')
         wifi_ready=ready and not active and bool(self.state and self.state.get('wifi_supported'))
         for w in [self.ssid,self.wifi_save,self.wifi_forget,self.open_network]:w.setEnabled(wifi_ready)
-        self.scan_btn.setEnabled(ready and not active and bool(self.state and self.state.get('wifi_scan_supported')))
+        self.scan_btn.setEnabled(wifi_ready)
+        connected=bool(self.state and self.state.get('wifi_connected'))
+        upgrade=self.scan_needs_upgrade()
+        self.scan_btn.setText('Update firmware & search' if upgrade else 'Disconnect & search for networks' if connected else 'Search nearby networks')
+        self.scan_hint.setText('Update firmware to enable scanning. This button updates, reconnects USB, and searches.' if upgrade else 'Disconnect to search for Wi-Fi networks. The button disconnects Wi-Fi, searches, then reconnects to the saved network. USB stays connected.' if connected else 'Search with the clock’s radio. USB stays connected.')
         self.password.setEnabled(wifi_ready and not self.open_network.isChecked());self.show_password.setEnabled(wifi_ready and not self.open_network.isChecked())
         self.cal_page.setEnabled(ready)
+        self.cal_start.setText('Update firmware & calibrate' if self.state and not self.state.get('test_duration_supported') else 'Start calibration wizard')
+        self.sweep_seconds.setEnabled(ready)
         self.cal_start.setEnabled(ready and not active and bool(self.state.get('dac_ready')) and 'cal_active' in self.state if self.state else False)
         self.seconds.setEnabled(ready and not active)
         for w in [self.enable,self.test,self.test_stop]:w.setEnabled(ready and not active)
@@ -176,14 +225,19 @@ class Window(QtWidgets.QMainWindow):
         if self.state and not self.working and not self.device.busy:
             if isinstance(QtWidgets.QApplication.focusWidget(),(QtWidgets.QLineEdit,QtWidgets.QSpinBox,QtWidgets.QComboBox)):return
             self.polling=True;self.command(dict(action='status'))
+    def scan_needs_upgrade(self):
+        return bool(self.state and (not self.state.get('wifi_scan_supported') or (self.state.get('wifi_connected') and not self.state.get('wifi_scan_disconnect_supported'))))
+    def scan_results(self,result):
+        rows,status=result;self.render(status)
+        current=self.ssid.currentText();self.ssid.clear()
+        for r in rows:self.ssid.addItem(r['ssid'],r)
+        if current:self.ssid.setEditText(current)
+        self.notice.setText(f'{len(rows)} networks found. Reconnecting to the saved network automatically. Select one or type its name.')
     def scan(self):
-        self.notice.setText('Searching with the R4 radio… The clock continues keeping time. This may take up to 45 seconds.')
-        def done(rows):
-            current=self.ssid.currentText();self.ssid.clear()
-            for r in rows:self.ssid.addItem(r['ssid'],r)
-            if current:self.ssid.setEditText(current)
-            self.notice.setText(f'{len(rows)} networks found. Select one or type its name.')
-        self.run(self.device.scan_networks,done)
+        if self.scan_needs_upgrade():self.flash(('scan',None));return
+        self.notice.setText('Disconnecting Wi-Fi and searching with the R4 radio… USB stays connected.')
+        def work():return self.device.scan_networks(),self.device.command(dict(action='status'))
+        self.run(work,self.scan_results)
     def network_selected(self,index):
         r=self.ssid.itemData(index)
         if r:self.open_network.setChecked(r['open']);self.notice.setText(f"{r['rssi']} dBm · "+('Open network' if r['open'] else 'Password required'))
@@ -194,7 +248,11 @@ class Window(QtWidgets.QMainWindow):
         self.run(work,done,'Wi-Fi saved. Waiting for network time.')
     def steps(self):return ['zero','hour','minute']+(['second'] if self.state and self.state.get('draft_seconds_enabled') else [])+['verify']
     def cal(self,operation,after=None,**values):self.command(dict(action='calibration',operation=operation,**values),after)
+    def start_sweep(self):
+        if not self.state.get('test_duration_supported'):self.flash(('test',self.sweep_seconds.value()));return
+        self.command(dict(action='test',operation='start',duration=self.sweep_seconds.value()))
     def start_cal(self):
+        if not self.state.get('test_duration_supported'):self.flash(('calibration',self.seconds.isChecked()));return
         self.step=0;self.cal('begin',seconds=self.seconds.isChecked())
     def go(self,step):
         steps=self.steps()
@@ -219,18 +277,48 @@ class Window(QtWidgets.QMainWindow):
     def hold(self):self.cal('target',hour=self.hold_h.value(),minute=self.hold_m.value(),second=self.hold_s.value() if self.state.get('draft_seconds_enabled') else 0)
     def enable_outputs(self):
         if QtWidgets.QMessageBox.question(self,'Enable meters','Have you checked the meter wiring and calibration?')==QtWidgets.QMessageBox.Yes:self.command(dict(action='output',enabled=True))
-    def flash(self):
-        if QtWidgets.QMessageBox.question(self,'Install firmware','Replace the Arduino sketch with clock firmware? Compatible saved calibration and Wi-Fi settings are retained.')!=QtWidgets.QMessageBox.Yes:return
-        row=self.ports.currentData()
-        def done(_):self.state=None;self.connection.setText('Installing firmware…');self.notice.setText('Installing firmware. Keep USB connected.');self.controls()
-        board=self.boards.currentData()
+    def flash(self,after=None):
+        text='Replace the Arduino sketch with clock firmware? Compatible saved calibration and Wi-Fi settings are retained.'
+        if after:text+=' Then reconnect automatically and '+('disconnect Wi-Fi to search for networks.' if after[0]=='scan' else 'apply the selected timezone.' if after[0] in ('zone','time') else 'start calibration or the selected sweep.')
+        if QtWidgets.QMessageBox.question(self,'Install firmware',text)!=QtWidgets.QMessageBox.Yes:return
+        row=self.ports.currentData();board=self.boards.currentData();self.flash_port=row['port'];self.after_flash=after
+        def done(_):self.state=None;self.clock_epoch=None;self.connection.setText('Installing firmware…');self.notice.setText('Installing firmware. Keep USB connected.');self.controls()
         self.run(lambda:self.device.flash(row['port'],board),done)
+    def resume_after_flash(self,action):
+        def work():
+            deadline=time.monotonic()+15
+            while True:
+                rows=self.device.boards();row=next((r for r in rows if r['port']==self.flash_port),None)
+                if not row:
+                    candidates=[r for r in rows if r.get('board')=='uno-r4-wifi']
+                    if len(candidates)==1:row=candidates[0]
+                if row:break
+                if time.monotonic()>=deadline:raise RuntimeError('Firmware installed. Refresh USB devices and connect to finish.')
+                time.sleep(.25)
+            status=self.device.connect(row['port'])
+            if action[0]=='scan':
+                if not status.get('wifi_scan_disconnect_supported'):raise RuntimeError('Update did not enable Wi-Fi scanning. Check the firmware version.')
+                return self.device.scan_networks(),self.device.command(dict(action='status'))
+            if action[0]=='test':return self.device.command(dict(action='test',operation='start',duration=action[1]))
+            if action[0]=='calibration':return self.device.command(dict(action='calibration',operation='begin',seconds=action[1]))
+            status=self.device.set_timezone(action[1])
+            if action[0]=='time':status=self.device.command(dict(action='time',epoch=int(time.time())))
+            return status
+        def done(s):
+            if action[0]=='scan':self.scan_results(s)
+            else:
+                self.render(s,True)
+                if action[0]=='calibration':self.step=0;self.render_cal()
+        self.run(work,done)
     def poll_job(self):
         job=self.device.job_state()
         if job['state']=='running':self.log.setPlainText(job['log']);self.controls()
         elif job['state'] in ['done','error'] and job['log']!=self.log.toPlainText():
             self.log.setPlainText(job['log']);self.notice.setText('Firmware installed. Refresh USB devices, then Connect.' if job['state']=='done' else 'Firmware installation failed. See the log.');self.controls()
-            if job['state']=='done':self.refresh()
+            after=self.after_flash;self.after_flash=None
+            if job['state']=='done':
+                if after:self.resume_after_flash(after)
+                else:self.refresh()
     def closeEvent(self,event):
         if self.working or self.device.busy:
             event.ignore();self.notice.setText('Wait for the current USB operation to finish before closing.');return
