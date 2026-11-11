@@ -1,88 +1,71 @@
-# KN6UBF USB clock setup
+# KN6UBF Clock Setup — native desktop app 0.4.0
 
-A local browser interface backed by Python, pyserial and Arduino CLI. It flashes the included firmware, sets the time from the computer, configures timezone/Wi-Fi, reports status, saves calibration and enables/disables meters. Both Uno R3 and R4 WiFi are supported; Wi-Fi controls are available only on R4 WiFi.
+Qt Widgets application for Windows, macOS and Linux. There is no embedded browser,
+localhost server, HTTP API or browser tab. USB and Arduino CLI operations run in a
+background worker, with native controls for configuration and calibration.
 
-## Downloadable apps
+## Customer flow
 
-Open [Clock Setup](https://benhg.github.io/ammeter-clock/) for Windows x64, macOS Apple silicon/Intel, and Linux x64 downloads. Extract the archive and open **KN6UBF Clock Setup** (`.exe` on Windows, `.app` on macOS, executable on Linux). Keep the extracted folder together on Windows/Linux. The app opens a local browser UI; Python, pyserial, firmware source and a checksum-verified official Arduino CLI 1.5.1 are bundled. The first flash automatically downloads the required Arduino board package and needs Internet access. Click **Quit setup app** when finished.
+1. Plug the Uno into USB. Select its USB device in the **USB connection** panel.
+   If clock firmware is already installed, click **Connect** immediately.
+2. First-time setup or updating: use the separate **Install / update firmware** tab.
+   Confirm the Arduino model, install firmware, then refresh USB devices and connect.
+   The first install downloads Arduino board support. Close other serial applications.
+3. In **Clock**, save a timezone and set computer time, or resume NTP on R4 WiFi.
+4. In **Wi-Fi**, search nearby networks, select one or type a hidden network name.
+   Search uses the R4 radio and requires firmware 0.4.0. Older firmware still accepts
+   manually entered credentials. **Show password** reveals only the text currently
+   entered; the stored password is never read back. Saving clears the password field
+   and resumes NTP. Credentials are stored on the Arduino, not in the desktop app.
+5. In **Calibration**, choose optional seconds, adjust mechanical zero at no output,
+   then use lower/raise at a held 12:30 reference (12:30:30 with seconds). Verify fixed
+   values or sweep, then Save. Drafts remain in RAM until Save; Cancel restores prior
+   settings. Ten idle minutes hold outputs at zero. Closing normally cancels a wizard;
+   unexpected disconnect uses the firmware timeout.
 
-The macOS builds are ad-hoc signed, not Developer ID signed or notarized; Windows binaries are unsigned. These are portable downloads, not system installers. Linux requires a graphical browser, glibc 2.35 or newer, and permission to access USB serial devices. Packages contain no Wi-Fi credentials. Customer-specific signing/notarization is not configured.
+Both onboard and external buttons work on R3/R4. Hold both for three seconds on R4
+to resume NTP after manual time adjustment. The RTC remains optional/not used.
+Scanning may pause displayed needle updates/button processing while the WiFiS3
+modem blocks; elapsed time is caught up afterward. No live board is flashed by builds.
 
-The Pages UI also supports direct USB setup through desktop Chrome/Edge using Web Serial. It can set time, Wi-Fi, calibration and output enable on already-flashed boards. Firmware flashing uses the downloaded app. Safari/Firefox users can use the app's local UI. Close other serial monitors/apps before connecting; a USB port can only be used by one application at a time.
-
-## Run from source on macOS
-
-Prerequisites: Python 3 and [Arduino CLI](https://docs.arduino.cc/arduino-cli/installation/). Board support downloads automatically on first flash, or install it beforehand:
+## Build and tests
 
 ```sh
-arduino-cli core update-index
-arduino-cli core install arduino:avr
-arduino-cli core install arduino:renesas_uno
+python -m pip install -r tools/clock_setup/requirements.txt pyinstaller==6.22.0
+python -m unittest discover -s tests -p 'test_*.py'
+python tools/clock_setup/build_app.py
+python tools/clock_setup/smoke_app.py
 ```
 
-Double-click `Launch.command`. It creates `.venv-clock`, installs the pinned pyserial dependency, starts the local server and opens the browser. Keep its Terminal window open; Ctrl+C stops it. If the CLI is not on PATH, set `ARDUINO_CLI` to its absolute path before starting. This source launcher is an alternative to the standalone downloads.
+Use `QT_QPA_PLATFORM=offscreen` for headless native-widget tests. `native_app.py` is
+the desktop entry point; `app.py` contains the USB/flasher backend. The optional
+GitHub Pages Web Serial UI remains separate and is not bundled in the desktop app.
+Qt (PySide6 Essentials) is LGPLv3; License texts and source links are bundled under `licenses/`. Source: https://doc.qt.io/qtforpython-6/licenses.html .
 
-Or run manually on macOS/Linux/Windows:
+## macOS signing and notarization
+
+Customer releases must use a **Developer ID Application** certificate with its
+matching private key in the build machine's Keychain. An Apple Development
+certificate does not qualify. Create the Developer ID certificate in Xcode or Apple's
+developer portal. A certificate made from an externally generated CSR must be paired
+with that CSR's private key and imported into Keychain before building.
+
+Set up a notarization credential profile with Apple's `xcrun notarytool
+store-credentials clock-notary` (interactive prompts; never commit secrets), then:
 
 ```sh
-python3 -m venv .venv-clock
-.venv-clock/bin/python -m pip install -r tools/clock_setup/requirements.txt
-.venv-clock/bin/python tools/clock_setup/app.py
+export MACOS_SIGNING_IDENTITY='Developer ID Application: Your Name (TEAMID)'
+export MACOS_NOTARY_PROFILE=clock-notary
+python tools/clock_setup/build_app.py
 ```
 
-Windows: use `.venv-clock\Scripts\python.exe` in the last two commands. Close Arduino IDE Serial Monitor before connecting. Linux may require serial-device permissions.
+PyInstaller signs nested binaries and the bundle with hardened runtime. The build
+verifies Developer ID signing, submits to Apple, requires Accepted, staples the
+notarization ticket, validates it and runs Gatekeeper assessment before archiving.
+Unsigned local development builds are allowed; they are not customer releases.
 
-## Use
-
-1. Plug in the Uno with a USB data cable. Remove any temporary J3 bench-test short.
-2. Choose the detected device and correct model. Click **Flash firmware** if it does not already have main firmware 0.3.0. The bundled bench sketches cannot answer setup commands.
-3. After flashing, refresh devices and connect. The R3 resets when the USB serial connection opens, so configure time after connecting.
-4. Choose a timezone. **Use computer time** saves it and sets UTC from the computer. Check the computer's own date/time first.
-5. On R4 WiFi, enter SSID/password and save. Saving a network does not override an intentional manual time setting: click **Resume NTP**, or restart, to allow network time. Status distinguishes Wi-Fi connectivity from an actual NTP synchronization. Network association can take a minute.
-6. Leave outputs disabled until meter wiring/calibration is checked. When ready, save calibration codes, check the confirmation and enable. Disable sends zero requests and persists the disabled state.
-
-Hours and minutes can also be adjusted with either onboard or external buttons. Hold to repeat. On R4 this pauses NTP until restart/resume. Without NTP or an external RTC, reset/power loss loses the running time. The external RTC connector remains optional and isn't read in this release.
-
-The service listens only on `127.0.0.1`, chooses a free port and requires the URL's per-launch capability token for API requests. No remote assets or cloud account. The per-launch token is retained in this browser tab’s session storage so refresh works. Reopen the complete launcher URL to connect from a new tab. Credentials are not logged, returned, put in subprocess arguments, or saved on the computer. They are stored unencrypted in Arduino EEPROM. Forget network clears the clock's saved credentials; it is not a forensic erase guarantee.
-
-Flashing verifies a recognized Arduino model against the selected board, compiles locally and uploads using Arduino CLI. Compatible saved settings survive a firmware upload. Failures appear in the upload log; the GUI does not claim success until the CLI finishes successfully. Firmware uploads disconnect the current setup session. Reconnect afterward.
-
-## Validation
-
-Host tests: `python3 -m unittest discover -s tests -p 'test_clock_setup.py'`.
-Firmware tests/builds: see [firmware README](../../firmware/README.md).
-Real Wi-Fi credentials and an access point are required to verify association/NTP on hardware; automated tests do not establish Wi-Fi RF performance or physical button wiring.
-
-## Build and release apps
-
-Install `pyinstaller==6.22.0` alongside `requirements.txt`, then run `python tools/clock_setup/build_app.py` and `python tools/clock_setup/smoke_app.py` on the target OS. Output is in `dist-clock/`. Arduino CLI comes from its official GitHub release and is checked against that release's SHA256 manifest before bundling. Its license is included.
-
-Tagging `v*` runs `.github/workflows/desktop.yml`: four native build runners, host tests, packaged CLI/assets/server smoke checks, then release downloads and SHA256 checksums. Every build must pass before the release is published. Website changes on main deploy through `.github/workflows/pages.yml`; Pages source must be GitHub Actions.
-
-Web Serial tests: `node tests/web_serial_test.js`. `python tools/clock_setup/build_pages.py` creates `_site-clock/` with only public UI assets. Wi-Fi credentials travel directly to the board, not to GitHub Pages. The website loads no third-party scripts.
-
-**Run test pattern** (firmware 0.2.2+) sweeps enabled meter outputs through hours 0–12 and minutes 0–60 over 61 seconds and then restores live time. Stop test, Disable meters, or either physical button cancels it. It never saves a test time or changes calibration.
-
-## Guided calibration (firmware 0.3.0+)
-
-Connect, then choose **Start calibration wizard**. Check the seconds-meter option
-only for a Rev 2 board with that movement connected.
-
-1. With outputs held at zero, adjust the meters' mechanical screws to zero.
-2. The wizard holds 12:30. Use **Lower needle** / **Raise needle** to match hours
-   to 12 and minutes to 30, choosing a finer adjustment size near the mark.
-   The optional measured-reading calculator can make a larger correction directly.
-3. With seconds connected, adjust it to 30 too.
-4. Check other values or run a sweep. **Save & run clock** saves calibration and
-   enables live outputs; **Cancel** discards the draft.
-
-Use the same scale marks you want the final clock to indicate. Neither motor
-movement nor actual current is measured by the software. Draft values stay in RAM
-until Save, and the clock keeps time throughout. An idle wizard times out after ten
-minutes and zeros outputs. On R4, hold both physical buttons for three seconds to
-resume NTP after manual adjustment. The optional seconds setting is retained with
-calibration; installed two-meter clocks migrate with seconds disabled.
-
-Tests: Python backend command validation, `node tests/web_serial_test.js`, and
-`node tests/calibration_ui_test.js` exercise the actual UI handlers using a transport
-fixture. A packaged app smoke test verifies bundled firmware, CLI, assets and HTTP UI.
+Tagged GitHub releases fail closed without signing secrets. Configure the six
+repository secrets named in `configure_macos_ci.py`; it imports the .p12 into an
+ephemeral runner keychain, configures notarization, and never prints key material or
+passwords. Do not put .p12/private keys in this repository. Windows signing is not
+configured; Windows reputation warnings are independent of Apple's notarization.

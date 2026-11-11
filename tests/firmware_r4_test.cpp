@@ -8,7 +8,7 @@ uint32_t fakeNow=0;int pins[4]={HIGH,HIGH,HIGH,HIGH};SerialMock Serial;WireMock 
 #include "../firmware/AmmeterClock/AmmeterClock.ino"
 void send(const std::string&s){Serial.output.clear();Serial.input=s+"\n";while(Serial.available())readCommands();}
 int main(){
- setup();strcpy(settings.ssid,"test");send("TIME 1793215800");send("SECONDS 1");send("OUTPUT 1");
+ setup();send("WIFI_SCAN");assert(Serial.output.find("5465737420224e6574776f726b22")!=std::string::npos);assert(Serial.output.find("\"open\":true")!=std::string::npos);WiFi.scanCount=-1;send("WIFI_SCAN");assert(Serial.output=="ERR wifi_scan_failed\n");WiFi.scanCount=2;strcpy(settings.ssid,"test");send("TIME 1793215800");send("SECONDS 1");send("OUTPUT 1");
  auto writes=EEPROM.writes;auto epoch=utcEpoch;auto hour=settings.hourScale;auto minute=settings.minuteScale;
  // Slightly staggered physical press: grace period suppresses individual changes.
  pins[2]=LOW;loop();fakeNow+=40;loop();pins[3]=LOW;fakeNow+=60;loop();

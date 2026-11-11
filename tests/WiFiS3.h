@@ -7,7 +7,13 @@ struct IPAddress {
  bool operator==(const IPAddress& other)const{return octets==other.octets;}
 };
 constexpr int WL_IDLE_STATUS=0,WL_CONNECTED=3;
+constexpr int ENC_TYPE_NONE=5;
 struct WiFiMock {
+ int scanCount=2;
+ int scanNetworks(){return scanCount;}
+ const char* SSID(int i){return i==0?"Test \"Network\"":"Open network";}
+ int RSSI(int i){return -40-i*20;}
+ int encryptionType(int i){return i?ENC_TYPE_NONE:2;}
  int state=WL_CONNECTED;
  int status(){return state;}
  void setTimeout(int){}

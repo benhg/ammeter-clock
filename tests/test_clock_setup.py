@@ -1,12 +1,9 @@
 import importlib.util
 import json
 from pathlib import Path
-import threading
 import subprocess
 import unittest
 from unittest.mock import patch
-from urllib.request import Request, urlopen
-from urllib.error import HTTPError
 
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location('clock_setup', ROOT/'tools/clock_setup/app.py')
@@ -72,30 +69,21 @@ class SetupTests(unittest.TestCase):
         self.assertIn(['cli','core','install','arduino:avr'],calls)
         self.assertEqual(calls[-1][1],'upload')
 
-    def test_http_auth_and_input(self):
-        server=app.Server(('127.0.0.1',0))
-        thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
-        base=f'http://127.0.0.1:{server.server_port}'
-        def request(path, data=None, token=None, origin=None):
-            headers={}
-            if token: headers['X-Clock-Token']=token
-            if origin: headers['Origin']=origin
-            if data is not None: headers['Content-Type']='application/json'
-            return urlopen(Request(base+path,data=json.dumps(data).encode() if data is not None else None,headers=headers))
-        try:
-            self.assertIn(b'Clock setup',request('/').read())
-            with self.assertRaises(HTTPError) as denied: request('/api/job')
-            self.assertEqual(denied.exception.code,403); denied.exception.close()
-            with self.assertRaises(HTTPError) as denied: request('/api/job',token=server.token,origin='https://example.com')
-            self.assertEqual(denied.exception.code,403); denied.exception.close()
-            result=json.load(request('/api/job',token=server.token)); self.assertEqual(result['state'],'idle')
-            with self.assertRaises(HTTPError) as invalid: request('/api/command',{'action':'output','enabled':'yes'},server.token)
-            self.assertEqual(invalid.exception.code,400); invalid.exception.close()
-            with patch.object(server.device,'boards',return_value=[dict(port='test',board='uno-r4-wifi',recognized=True)]):
-                with self.assertRaises(ValueError): server.device.flash('test','uno-r3')
-            with self.assertRaises(HTTPError) as missing: request('/../../README.md')
-            self.assertEqual(missing.exception.code,404); missing.exception.close()
-        finally:
-            server.shutdown();server.server_close();thread.join()
+    def test_usb_enumeration_ignores_pseudo_ports(self):
+        from types import SimpleNamespace
+        ports=[SimpleNamespace(device='/dev/cu.wlan-debug',vid=None,pid=None,description='debug'),
+               SimpleNamespace(device='/dev/cu.usbmodem1',vid=0x2341,pid=0x1002,description='R4'),
+               SimpleNamespace(device='/dev/cu.usbserial1',vid=0x1a86,pid=0x7523,description='clone')]
+        with patch('serial.tools.list_ports.comports',return_value=ports):rows=app.Device().boards()
+        self.assertEqual(len(rows),2);self.assertEqual(rows[0]['board'],'uno-r4-wifi');self.assertFalse(rows[1]['recognized'])
+
+    def test_scan_deduplicates_and_preserves_names(self):
+        device=app.Device()
+        rows=[dict(ssid_hex=name.encode().hex(),rssi=rssi,open=opened) for name,rssi,opened in [('A "quoted" network',-70,False),('A "quoted" network',-30,False),('Open',-50,True),('',-10,True)]]
+        with patch.object(device,'request',return_value={'networks':rows}) as request:
+            networks=device.scan_networks()
+        request.assert_called_once_with('WIFI_SCAN')
+        self.assertEqual([x['rssi'] for x in networks],[-30,-50])
+        self.assertTrue(networks[1]['open'])
 
 if __name__=='__main__': unittest.main()

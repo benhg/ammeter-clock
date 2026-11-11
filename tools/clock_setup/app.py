@@ -1,24 +1,18 @@
 #!/usr/bin/env python3
-"""Local USB flasher/setup UI. No cloud service or saved host-side Wi-Fi secrets."""
+"""USB/Arduino backend shared by the native desktop app. No HTTP server."""
 from __future__ import annotations
-import argparse
 import json
 import os
 from pathlib import Path
-import secrets
 import shutil
 import subprocess
 import sys
 import tempfile
 import threading
 import time
-import webbrowser
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parents[2]
 BUNDLE = Path(getattr(sys, "_MEIPASS", ROOT))
-STATIC = BUNDLE / "tools/clock_setup" if getattr(sys, "frozen", False) else Path(__file__).resolve().parent
 if getattr(sys, "frozen", False):
     ROOT = BUNDLE
 BOARDS = {"uno-r3": ("arduino:avr:uno", "arduino:avr"),
@@ -105,6 +99,8 @@ def make_command(data):
         if len(password.encode("utf-8")) == 64 and any(c not in "0123456789abcdefABCDEF" for c in password):
             raise ValueError("A 64-byte Wi-Fi key must be hexadecimal")
         return f"WIFI {ssid} {encoded}"
+    if action == "wifi_scan":
+        return "WIFI_SCAN"
     if action == "wifi_clear":
         return "WIFI_CLEAR"
     if action == "sync":
@@ -126,6 +122,8 @@ class Device:
         from serial.tools import list_ports
         rows = []
         for port in list_ports.comports():
+            # macOS exposes Bluetooth/debug pseudo-ports alongside USB.
+            if port.vid is None and not any(name in port.device.lower() for name in ("usb", "ttyacm", "ttyusb")): continue
             board = None
             if port.vid in (0x2341, 0x2a03):
                 if port.pid in (0x1002, 0x0069):
@@ -149,9 +147,9 @@ class Device:
             self.serial.reset_input_buffer()
             self.serial.write((command + "\n").encode("ascii"))
             self.serial.flush()
-            deadline = time.monotonic() + 12
+            deadline = time.monotonic() + (45 if command == "WIFI_SCAN" else 12)
             while time.monotonic() < deadline:
-                line = self.serial.readline(2048).decode("utf-8", errors="replace").strip()
+                line = self.serial.readline(8192).decode("utf-8", errors="replace").strip()
                 if line.startswith("OK "):
                     return json.loads(line[3:])
                 if line.startswith("ERR "):
@@ -189,6 +187,18 @@ class Device:
                 raise RuntimeError("Flashing is in progress")
             self.request(command) if command != "STATUS" else None
             return self.request("STATUS")
+
+    def scan_networks(self):
+        with self.lock:
+            if self.busy: raise RuntimeError("Flashing is in progress")
+            reply = self.request("WIFI_SCAN")
+        strongest = {}
+        for network in reply.get("networks", []):
+            name = bytes.fromhex(network["ssid_hex"]).decode("utf-8", errors="replace")
+            if not name: continue
+            row = dict(ssid=name, rssi=network["rssi"], open=network["open"])
+            if name not in strongest or row['rssi'] > strongest[name]['rssi']: strongest[name] = row
+        return sorted(strongest.values(), key=lambda r:r['rssi'], reverse=True)
 
     def job_state(self):
         with self.job_lock:
@@ -251,126 +261,3 @@ class Device:
         finally:
             with self.lock:
                 self.busy = False
-
-
-class Server(ThreadingHTTPServer):
-    daemon_threads = True
-
-    def __init__(self, address):
-        super().__init__(address, Handler)
-        self.token = secrets.token_urlsafe(32)
-        self.device = Device()
-
-
-class Handler(BaseHTTPRequestHandler):
-    def log_message(self, *_):
-        pass  # Never log request bodies, credentials, or capability tokens.
-
-    def send(self, status, payload, content_type="application/json"):
-        body = json.dumps(payload).encode() if content_type == "application/json" else payload
-        self.send_response(status)
-        self.send_header("Content-Type",content_type)
-        self.send_header("Content-Length",str(len(body)))
-        self.send_header("Cache-Control","no-store")
-        self.send_header("X-Content-Type-Options","nosniff")
-        self.send_header("Referrer-Policy","no-referrer")
-        self.send_header("Content-Security-Policy","default-src 'self'; script-src 'self'; style-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'")
-        self.end_headers()
-        self.wfile.write(body)
-
-    def authorized(self):
-        origin = self.headers.get("Origin")
-        expected = f"http://127.0.0.1:{self.server.server_port}"
-        return (self.headers.get("Host") == expected[7:]
-                and (origin is None or origin == expected)
-                and secrets.compare_digest(self.headers.get("X-Clock-Token", ""),self.server.token))
-
-    def do_GET(self):
-        path = urlsplit(self.path).path
-        if path.startswith("/api/"):
-            if not self.authorized():
-                self.send(403,{"error":"Unauthorized local request"}); return
-            try:
-                if path == "/api/boards":
-                    self.send(200,{"boards":self.server.device.boards()})
-                elif path == "/api/job":
-                    self.send(200,self.server.device.job_state())
-                else:
-                    self.send(404,{"error":"Not found"})
-            except Exception as exc:
-                self.send(400,{"error":str(exc)})
-            return
-        files = {"/":("index.html","text/html; charset=utf-8"),
-                 "/app.js":("app.js","text/javascript; charset=utf-8"),
-                 "/style.css":("style.css","text/css; charset=utf-8"),
-                 "/web_serial.js":("web_serial.js","text/javascript; charset=utf-8"),
-                 "/calibration.js":("calibration.js","text/javascript; charset=utf-8")}
-        if path not in files:
-            self.send(404,{"error":"Not found"}); return
-        name, content_type = files[path]
-        self.send(200,(STATIC/name).read_bytes(),content_type)
-
-    def do_POST(self):
-        if not self.authorized():
-            self.send(403,{"error":"Unauthorized local request"}); return
-        try:
-            size = int(self.headers.get("Content-Length",0))
-            if size <= 0 or size > 8192:
-                raise ValueError("Invalid request size")
-            data = json.loads(self.rfile.read(size))
-            if not isinstance(data,dict):
-                raise ValueError("Expected an object")
-            device = self.server.device
-            if self.path == "/api/connect":
-                result = device.connect(data.get("port"))
-            elif self.path == "/api/command":
-                result = device.command(data)
-            elif self.path == "/api/flash":
-                result = device.flash(data.get("port"),data.get("board"))
-            elif self.path == "/api/quit":
-                if device.busy:
-                    raise RuntimeError("Wait for the firmware upload to finish before quitting")
-                self.send(200,{})
-                threading.Thread(target=self.server.shutdown,daemon=True).start()
-                return
-            elif self.path == "/api/disconnect":
-                with device.lock:
-                    device.close()
-                result = {}
-            else:
-                self.send(404,{"error":"Not found"}); return
-            self.send(200,result)
-        except Exception as exc:
-            self.send(400,{"error":str(exc)})
-
-
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--port",type=int,default=0,help="Local web port (default: choose a free port)")
-    parser.add_argument("--no-browser",action="store_true")
-    parser.add_argument("--self-test",metavar="RESULT_JSON",help=argparse.SUPPRESS)
-    args = parser.parse_args()
-    if args.self_test:
-        for name in ("index.html","app.js","web_serial.js","calibration.js","style.css"):
-            assert (STATIC/name).is_file(), name
-        assert (ROOT/"firmware/AmmeterClock/AmmeterClock.ino").is_file()
-        result = run_cli([find_cli(),"version"],capture_output=True,text=True,timeout=30,check=True)
-        Path(args.self_test).write_text(json.dumps({"frozen":bool(getattr(sys,"frozen",False)),"cli":result.stdout.strip()}))
-        return
-    server = Server(("127.0.0.1",args.port))
-    url = f"http://127.0.0.1:{server.server_port}/#{server.token}"
-    print("Clock setup: " + url,flush=True)
-    print("Keep this process running. Ctrl+C closes the tool.",flush=True)
-    if not args.no_browser:
-        webbrowser.open(url)
-    try:
-        server.serve_forever()
-    except KeyboardInterrupt:
-        pass
-    finally:
-        server.device.close()
-        server.server_close()
-
-
-if __name__ == "__main__":
-    main()

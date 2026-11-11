@@ -9,8 +9,8 @@ mechanicals and seconds channel still need a physical prototype.
 
 [Clock Setup](https://benhg.github.io/ammeter-clock/) configures time, timezone,
 Wi-Fi and calibration over USB. [Download a desktop app](https://github.com/benhg/ammeter-clock/releases)
-for Windows, macOS or Linux to flash firmware as well. The local app uses a browser
-for its interface and includes Python and Arduino CLI; first flash downloads board support.
+for Windows, macOS or Linux to flash firmware as well. The native desktop app uses Qt Widgets and includes Python and Arduino CLI;
+first flash downloads board support. Firmware installation is separate from connecting.
 
 Firmware 0.3.0 adds a guided calibration wizard: mechanical zero, held 12:30
 reference, lower/raise adjustments, optional seconds, arbitrary test values and a
@@ -31,3 +31,7 @@ Meter outputs default disabled on a new installation. The minute/second drivers
 have 56 kΩ series resistors and require microamp movements, not milliamp meters.
 Manufacturer macro-model simulations impose the 15 V supply; they do not simulate
 the Pololu converter or the DAC's EEPROM power-on state.
+
+Desktop app / firmware 0.4.0 adds R4 Wi-Fi network search, native password visibility
+control and a dedicated USB connection panel. Customer macOS releases now require
+Developer ID signing and Apple notarization.

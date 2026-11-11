@@ -1,4 +1,4 @@
-# Clock firmware 0.3.0
+# Clock firmware 0.4.0
 
 `AmmeterClock/AmmeterClock.ino` supports Uno R3 and Uno R4 WiFi without external libraries. Install the appropriate official Arduino board package. The R4 uses the included WiFiS3 library; R3 builds omit networking. No external RTC is required or currently read by this firmware.
 
@@ -87,3 +87,14 @@ no network to sync. Synchronous WiFiS3 modem operations may briefly delay sampli
 Local tests include `tests/firmware_test.cpp` and `tests/firmware_r4_test.cpp`;
 the latter uses Wi-Fi/UDP mocks to check the physical-button chord through a valid
 NTP reply and seconds output. These do not replace a real modem/needle test.
+
+## Wi-Fi search (0.4.0)
+
+`WIFI_SCAN` on R4 returns `OK {"networks":[{"ssid_hex":"…","rssi":-40,"open":false}]}`.
+SSID bytes are hex encoded so quotes/non-ASCII cannot corrupt framing. Up to 32
+access points are returned. The native app deduplicates SSIDs by strongest RSSI and
+allows manual entry. Negative modem scan results return `ERR wifi_scan_failed`;
+R3 returns `ERR wifi_not_supported`. Scanning is refused during calibration/sweeps.
+Scan timeout in the host is 45 seconds; a synchronous scan may temporarily delay
+needle/button updates, after which elapsed clock time is caught up. It writes no
+settings, connects to no network, and preserves manual/NTP mode.

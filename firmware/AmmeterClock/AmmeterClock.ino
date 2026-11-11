@@ -97,7 +97,7 @@ void setClock(uint32_t epoch, const char *source) {
 void ok() { Serial.println(F("OK {}")); }
 void error(const __FlashStringHelper *message) { Serial.print(F("ERR ")); Serial.println(message); }
 void printStatus() {
-  Serial.print(F("OK {\"protocol\":1,\"firmware\":\"0.3.0\",\"board\":\""));
+  Serial.print(F("OK {\"protocol\":1,\"firmware\":\"0.4.0\",\"board\":\""));
 #if CLOCK_WIFI
   Serial.print(F("uno-r4-wifi"));
 #else
@@ -130,6 +130,7 @@ void printStatus() {
   Serial.print(F(",\"minute_scale\":")); Serial.print(settings.minuteScale);
   Serial.print(F(",\"offset\":")); Serial.print(settings.offsetMinutes);
   Serial.print(F(",\"dst\":")); Serial.print(settings.dst);
+  Serial.print(F(",\"wifi_scan_supported\":")); Serial.print(CLOCK_WIFI ? F("true") : F("false"));
   Serial.print(F(",\"wifi_supported\":")); Serial.print(CLOCK_WIFI ? F("true") : F("false"));
   Serial.print(F(",\"wifi_configured\":")); Serial.print(settings.ssid[0] ? F("true") : F("false"));
   Serial.print(F(",\"wifi_connected\":"));
@@ -225,6 +226,30 @@ void command(char *line) {
 #endif
       testActive = true; testStep = 0; testStarted = millis(); updateGauges(); ok(); return;
     }
+  }
+  if (!strcmp(cmd,"WIFI_SCAN") && !a) {
+#if CLOCK_WIFI
+    if(calActive||testActive){error(F("finish_meter_test_first"));return;}
+    int count=WiFi.scanNetworks();
+    if(count<0){error(F("wifi_scan_failed"));return;}
+    Serial.print(F("OK {\"networks\":["));
+    for(int i=0;i<count&&i<32;++i){
+      if(i)Serial.print(F(","));
+      Serial.print(F("{\"ssid_hex\":\""));
+      const char* ssid=WiFi.SSID(i);
+      for(uint8_t j=0;ssid&&ssid[j]&&j<32;++j){
+        const char* hex="0123456789abcdef";uint8_t c=uint8_t(ssid[j]);
+        Serial.print(hex[c>>4]);Serial.print(hex[c&15]);
+      }
+      Serial.print(F("\",\"rssi\":"));Serial.print(WiFi.RSSI(i));
+      Serial.print(F(",\"open\":"));Serial.print(WiFi.encryptionType(i)==ENC_TYPE_NONE?F("true"):F("false"));
+      Serial.print(F("}"));
+    }
+    Serial.println(F("]}"));
+#else
+    error(F("wifi_not_supported"));
+#endif
+    return;
   }
   if (!strcmp(cmd,"WIFI") && a && b && !extra) {
 #if CLOCK_WIFI
