@@ -3,7 +3,7 @@
 #include <cstring>
 struct WiFiUDP {
  std::vector<unsigned char> incoming,outgoing;
- IPAddress remote{162,159,200,1};int port=123,sends=0;
+ IPAddress remote{162,159,200,1};int port=123,sends=0;bool sendOK=true;
  int begin(int){return 1;}
  void stop(){incoming.clear();}
  int parsePacket(){return incoming.size();}
@@ -11,6 +11,6 @@ struct WiFiUDP {
  int remotePort(){return port;}
  IPAddress remoteIP(){return remote;}
  int beginPacket(IPAddress,int){outgoing.clear();return 1;}
- void write(unsigned char* data,size_t n){outgoing.assign(data,data+n);}
- int endPacket(){++sends;return 1;}
+ size_t write(unsigned char* data,size_t n){outgoing.assign(data,data+n);return n;}
+ int endPacket(){++sends;return sendOK;}
 };

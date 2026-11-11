@@ -15,6 +15,8 @@ struct WiFiMock {
  int RSSI(int i){return -40-i*20;}
  int encryptionType(int i){return i?ENC_TYPE_NONE:2;}
  int state=WL_CONNECTED;
+ const char* firmwareVersion(){return "0.6.1";}
+ const char* localIP(){return "10.0.0.223";}
  int status(){return state;}
  void setTimeout(int){}
  int begin(const char*,const char* = nullptr){return state=WL_CONNECTED;}

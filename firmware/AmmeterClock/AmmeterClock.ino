@@ -149,7 +149,9 @@ void printStatus() {
   Serial.print(F("false"));
 #endif
 #if CLOCK_WIFI
-  Serial.print(F(",\"wifi_code\":")); Serial.print(wifiState);
+  Serial.print(F(",\"wifi_firmware\":\"")); Serial.print(WiFi.firmwareVersion());
+  Serial.print(F("\",\"wifi_ip\":\"")); Serial.print(WiFi.localIP());
+  Serial.print(F("\",\"wifi_code\":")); Serial.print(wifiState);
   Serial.print(F(",\"ntp_state\":\"")); Serial.print(ntpState);
   Serial.print(F("\",\"ntp_packets\":")); Serial.print(ntpPackets);
   Serial.print(F(",\"ntp_size\":")); Serial.print(ntpLastSize);
@@ -356,18 +358,21 @@ void networkTick(uint32_t now) {
   }
   if (ntpWaiting && uint32_t(now-ntpSentAt) >= 5000) { ntpWaiting = false; ntpState = "reply_timeout"; }
   if (!ntpWaiting && (ntpDue || uint32_t(now-lastNtpAttempt) >= ntpInterval)) {
-    ntpDue = false; lastNtpAttempt = now; ntpInterval = 60000;
+    ntpDue = false; lastNtpAttempt = now; ntpInterval = 5000;
     // Cloudflare anycast address keeps time sync independent of DNS.
     // https://developers.cloudflare.com/time-services/ntp/usage/
     ntpAddress = IPAddress(162,159,200,1);
-    ntpState = "send_failed";
+    ntpState = "begin_packet_failed";
     uint8_t packet[48] = {};
     packet[0] = 0x23; // NTP v4 client, synchronized-state unknown.
     for (uint8_t i = 0; i < 8; ++i) ntpCookie[i] = uint8_t(random(1,256));
     memcpy(packet+40,ntpCookie,8);
     if (udp.beginPacket(ntpAddress,123)) {
-      udp.write(packet,sizeof(packet));
-      if (udp.endPacket()) { ntpWaiting = true; ntpSentAt = millis(); ntpState = "awaiting_reply"; }
+      ntpState = "write_failed";
+      if (udp.write(packet,sizeof(packet)) == sizeof(packet)) {
+        ntpState = "end_packet_failed";
+        if (udp.endPacket()) { ntpWaiting = true; ntpSentAt = millis(); ntpInterval = 60000; ntpState = "awaiting_reply"; }
+      }
     }
   }
 }

@@ -25,6 +25,11 @@ int main(){
  for(int i=0;i<4;++i)udp.incoming[40+i]=(n>>(24-8*i))&255;
  fakeNow+=250;loop();assert(utcEpoch==expected&&!manualOverride&&!ntpWaiting);
  assert(std::string(timeSource)=="ntp");
+ // A failed send retries after five seconds without losing the valid clock.
+ udp.sendOK=false;ntpDue=true;fakeNow+=250;networkTick(fakeNow);
+ assert(!ntpWaiting&&std::string(ntpState)=="end_packet_failed"&&timeValid);
+ auto failedSends=udp.sends;fakeNow+=4750;networkTick(fakeNow);assert(udp.sends==failedSends);
+ udp.sendOK=true;fakeNow+=250;networkTick(fakeNow);assert(ntpWaiting&&udp.sends==failedSends+1);
  auto packet=Wire.writes.back();uint16_t code=((packet[2]&15)<<8)|packet[3];
  assert(packet[1]==0x42&&code==settings.secondScale*45/60);
  // Wizard suspends network; cancellation restores original network mode.
