@@ -22,6 +22,8 @@ jobs:
           - os: ubuntu-22.04
             label: Linux-x64
     runs-on: ${{ matrix.os }}
+    env:
+      CAN_SIGN_MAC: ${{ secrets.APPLE_CERTIFICATE_P12_BASE64 != '' && secrets.APPLE_CERTIFICATE_PASSWORD != '' && secrets.APPLE_ID != '' && secrets.APPLE_TEAM_ID != '' && secrets.APPLE_APP_SPECIFIC_PASSWORD != '' && secrets.MACOS_SIGNING_IDENTITY != '' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -36,7 +38,7 @@ jobs:
       - run: node tests/web_serial_test.js
       - run: node tests/calibration_ui_test.js
       - name: Configure signed macOS release
-        if: runner.os == 'macOS' && startsWith(github.ref, 'refs/tags/v')
+        if: runner.os == 'macOS' && startsWith(github.ref, 'refs/tags/v') && env.CAN_SIGN_MAC == 'true'
         env:
           APPLE_CERTIFICATE_P12_BASE64: ${{ secrets.APPLE_CERTIFICATE_P12_BASE64 }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
@@ -45,9 +47,15 @@ jobs:
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
           MACOS_SIGNING_IDENTITY: ${{ secrets.MACOS_SIGNING_IDENTITY }}
         run: python tools/clock_setup/configure_macos_ci.py
+      - name: Explain deferred macOS downloads
+        if: runner.os == 'macOS' && startsWith(github.ref, 'refs/tags/v') && env.CAN_SIGN_MAC != 'true'
+        run: echo '::notice::macOS release downloads omitted because signing credentials are unavailable. Upload a locally signed and notarized build after Apple accepts it.'
       - run: python tools/clock_setup/build_app.py
+        if: "!(runner.os == 'macOS' && startsWith(github.ref, 'refs/tags/v') && env.CAN_SIGN_MAC != 'true')"
       - run: python tools/clock_setup/smoke_app.py
+        if: "!(runner.os == 'macOS' && startsWith(github.ref, 'refs/tags/v') && env.CAN_SIGN_MAC != 'true')"
       - uses: actions/upload-artifact@v4
+        if: "!(runner.os == 'macOS' && startsWith(github.ref, 'refs/tags/v') && env.CAN_SIGN_MAC != 'true')"
         with:
           name: clock-setup-${{ matrix.label }}
           path: |
@@ -68,6 +76,7 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
           pattern: clock-setup-*
@@ -81,5 +90,11 @@ jobs:
         run: |
           cd downloads
           sha256sum * > SHA256SUMS.txt
-          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --title "Clock Setup $TAG" --notes "Standalone USB clock setup apps. Extract the archive, then open KN6UBF Clock Setup. Python and Arduino CLI are included; board support downloads automatically on first flash. macOS apps are Developer ID signed and notarized. Linux requires desktop GUI libraries and serial-port access. Meter outputs remain governed by the saved board settings."
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            if [ -f "../release-notes/$TAG.md" ]; then
+              gh release create "$TAG" --verify-tag --title "Clock Setup $TAG" --notes-file "../release-notes/$TAG.md"
+            else
+              gh release create "$TAG" --verify-tag --title "Clock Setup $TAG" --generate-notes
+            fi
+          fi
           gh release upload "$TAG" ./* --clobber
